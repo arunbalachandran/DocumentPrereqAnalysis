@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Graph shown here</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shepherd/1.7.0/css/shepherd-theme-arrows.css" type="text/css" />
+    <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bar.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/buttongroup.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/shepherd-custom.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/commafield.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/welcome.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/modals.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/progress.css') }}">
+
+    <script>  // use this in the below binding script
+      var graphNodes = {{ nodes|tojson }};
+    </script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
+  </head>
+  <body>
+    <div id="container" class="fullscreen"></div>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis-network.min.js"> </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"> </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.3/js/tether.min.js"> </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/shepherd/1.7.0/js/shepherd.min.js"> </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/api.js') }}"> </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/helpers.js') }}"> </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/main_functions.js') }}"> </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/help.js') }}"> </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"> </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/network_serialize.js') }}"> </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bindings.js') }}"> </script>
+    <!-- <script type="text/javascript" src="{{ url_for('static', filename='js/commafield.js') }}"> </script> -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/modals.js') }}"> </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/progress.js') }}"> </script>
+    <script>
+      // Run events that need to happen on initialization.
+      window.onload = function () {
+          bind();
+      };
+    </script>
+  </body>
+</html>
