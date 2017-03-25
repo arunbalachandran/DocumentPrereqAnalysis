@@ -16,7 +16,9 @@ var first_time = 1;
 function expandNodeCallback(page) {
     var node = nodes.get(page);  //The node that was clicked
     var level = node.level + 1;  //Level for new nodes is one more than parent
-    var subpages = graphNodes[page];   // list of child nodes
+    // var parentObj = node.get(page);
+    console.log("Parent object is ", nodes.get(page)['node_parent_marker']);
+    var subpages = node['node_parent_marker'];   // list of child nodes
     console.log("THe current level for node that was clicked " + node.level);
     console.log("THe current node that was clicked ", node.label);
     console.log("Subpages are ", subpages);
@@ -27,6 +29,7 @@ function expandNodeCallback(page) {
     var nodeSpawn = getSpawnPosition(page);
     //Create node objects
     for (var key in subpages) {
+        console.log("Loop ran");
         console.log("Key is ", key);
         // key wont fetch the object duh!
         var subpage = key;
@@ -34,9 +37,8 @@ function expandNodeCallback(page) {
         // var subpageID = getNeutralId(subpage);
         var subpageID = subpage;
         if (nodes.getIds().indexOf(subpageID) == -1) {        //Don't add if node exists
-            subnodes.push({id: subpageID, label: subpage, value: 1,
-                           level: level, color: getColor(level), parent: page,
-                           x: nodeSpawn[0], y: nodeSpawn[1]});  //Add node
+            subnodes.push({id: subpageID, label: subpage, value: 1, level: level, color: getColor(level), parent: page,
+                           node_parent_marker: nodes.get(page)['node_parent_marker'][key], x: nodeSpawn[0], y: nodeSpawn[1]});  //Add node
             // subnodes.push({id: subpageID, label: wordwrap(decodeURIComponent(subpage),15), value: 1,
             //                level: level, color: getColor(level), parent: page,
             //                x: nodeSpawn[0], y: nodeSpawn[1]});  //Add node
@@ -47,6 +49,7 @@ function expandNodeCallback(page) {
                            level: level, selectionWidth: 2, hoverWidth: 0});
         }
     }
+    console.log("Done with loop");
     //Add the stuff to the nodes array
     nodes.add(subnodes);
     edges.add(newedges);
@@ -66,16 +69,20 @@ function expandNode(page) {
 
 //Get all the nodes tracing back to the start node.
 function getTraceBackNodes(node) {
-  var finished = false;
-  var path = [];
-  while (! finished) { //Add parents of nodes until we reach the start
-    path.push(node);
-    if (startpages.indexOf(node) !== -1) { //Check if we've reached the end
-      finished = true;
+    var finished = false;
+    var path = [];
+    while (! finished) { //Add parents of nodes until we reach the start
+        path.push(node);
+        // if (startpages.indexOf(node) !== -1) { //Check if we've reached the end
+        // My amazing condition
+        console.log("Current parent of node ", nodes.get(node).label, " is ", nodes.get(node).parent);
+        if (startpages[0] === nodes.get(node).parent) {
+            finished = true;
+        }
+        console.log("Now get the parent ", nodes.get(node).parent);
+        node = nodes.get(node).parent; //Keep exploring with the node above.
     }
-    node = nodes.get(node).parent; //Keep exploring with the node above.
-  }
-  return path;
+    return path;
 }
 
 //Get all the edges tracing back to the start node.
@@ -109,20 +116,20 @@ function resetProperties() {
 
 //Highlight the path from a given node back to the central node.
 function traceBack(node) {
-  if (node != selectedNode) {
-    selectedNode = node;
-    resetProperties();
-    tracenodes = getTraceBackNodes(node);
-    traceedges = getTraceBackEdges(tracenodes);
-    //Color nodes yellow
-    var modnodes = tracenodes.map(function(i){return nodes.get(i);});
-    colorNodes(modnodes, 1);
-    //Widen edges
-    var modedges = traceedges.map(function(i){
-      var e=edges.get(i);
-      e.color={inherit:"to"};
-      return e;
-    });
-    edgesWidth(modedges, 5);
-  }
+    if (node != selectedNode) {
+        selectedNode = node;
+        resetProperties();
+        tracenodes = getTraceBackNodes(node);
+        traceedges = getTraceBackEdges(tracenodes);
+        //Color nodes yellow
+        var modnodes = tracenodes.map(function(i){return nodes.get(i);});
+        colorNodes(modnodes, 1);
+        //Widen edges
+        var modedges = traceedges.map(function(i){
+        var e=edges.get(i);
+        e.color={inherit:"to"};
+        return e;
+        });
+        edgesWidth(modedges, 5);
+    }
 }

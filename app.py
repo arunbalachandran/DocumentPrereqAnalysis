@@ -34,11 +34,11 @@ def showIndex():
             return render_template('graph_page.html', nodes=nodes)
 
 # api request
-@app.route('/links')
-def getSubPages():
-    page = request.args.get("page")
-    print ("This is inside getSubPages " + str(json.dumps(first_paragraph_links(page))))
-    return json.dumps(first_paragraph_links(page))
+# @app.route('/links')
+# def getSubPages():
+#     page = request.args.get("page")
+#     print ("This is inside getSubPages " + str(json.dumps(first_paragraph_links(page))))
+#     return json.dumps(first_paragraph_links(page))
 
 # @app.route('/graph', methods=['GET', 'POST'])
 # def showGraph():

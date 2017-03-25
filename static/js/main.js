@@ -50,10 +50,11 @@ function resetNetwork(start) {
     // -- CREATE NETWORK -- //
     //Make a container
     // {id: startID, label: wordwrap(decodeURIComponent(start), 20),
+    // parent below actually has current value
+    // {id: startID, label: startID, value: 2, level: 0, color: getColor(0), x: 0, y: 0, parent: startID}//Parent is self
+    // {id: startID, label: (startID, 20), value: 2, level: 0, color: getColor(0), x: 0, y: 0, parent: startID}//Parent is self
     nodes = new vis.DataSet([
-        {id: startID, label: startID, value: 2, level: 0, color: getColor(0), x: 0, y: 0, parent: startID}//Parent is self
-        // {id: startID, label: startID, value: 2, level: 0, color: getColor(0), x: 0, y: 0, parent: startID}//Parent is self
-        // {id: startID, label: (startID, 20), value: 2, level: 0, color: getColor(0), x: 0, y: 0, parent: startID}//Parent is self
+        {id: startID, label: startID, value: 2, level: 0, color: getColor(0), x: 0, y: 0, parent: startID, node_parent_marker: start[startID]}// Pass object
     ]);
     edges = new vis.DataSet();
     //Put the data in the container

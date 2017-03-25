@@ -10,6 +10,7 @@ function expandEvent (params) {     // Expand a node (with event handler)
 }
 
 function mobileTraceEvent (params) { // Trace back a node (with event handler)
+    console.log("Mobile trace event occured");
     if (params.nodes.length) { //Was the click on a node?
         //The node clicked
         var page = params.nodes[0];
@@ -76,6 +77,7 @@ function bindNetwork() {
     }
     else {               // Device does not have a touchscreen
         network.on("click", expandEvent); // Expand on click
+        console.log("Expand click here");
         network.on("hoverNode", function(params) { // Highlight traceback on hover
             traceBack(params.node);
         });
