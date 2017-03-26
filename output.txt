@@ -1,682 +1,587 @@
 
 
-YOLO9000:Better, Faster, Stronger
-Joseph Redmon*#, Ali Farhadi*#
-University of Washington*, Allen Institute for AI#
-http://pjreddie.com/yolo9000/
+Proceedings of the 2015 Conference on Empirical Methods in Natural Language Processing, pages 1668-1674,Lisbon, Portugal, 17-21 September 2015. cfl2015 Association for Computational Linguistics.
+
+Measuring Prerequisite Relations Among Concepts
+Chen Liang # Zhaohui Wu## Wenyi Huang# C. Lee Giles##Information Sciences and Technology
+
+##Computer Science and Engineering
+
+The Pennsylvania State UniversityUniversity Park, PA
+
+cul226@ist.psu.edu zzw109@psu.edu {wzh112,giles}@ist.psu.edu
 
 Abstract
-We introduce YOLO9000, a state-of-the-art, real-timeobject detection system that can detect over 9000 object
+A prerequisite relation describes a basic
+relation among concepts in cognition, education and other areas. However, as a semantic relation, it has not been well studied in computational linguistics. We investigate the problem of measuring prerequisite relations among concepts and propose a simple link-based metric, namely
+reference distance (RefD), that effectively
+models the relation by measuring how differently two concepts refer to each other.
+Evaluations on two datasets that include
+seven domains show that our single metric
+based method outperforms existing supervised learning based methods.
 
-categories. First we propose various improvements to theYOLO detection method, both novel and drawn from prior
-work. The improved model, YOLOv2, is state-of-the-art onstandard detection tasks like P
+1 Introduction
+What should one know/learn before starting to
+learn a new area such as "deep learning"? A key
+for answering this question is to understand what
+a prerequisite is. A prerequisite is usually a concept or requirement before one can proceed to a
+following one. And the prerequisite relation exists
+as a natural dependency among concepts in cognitive processes when people learn, organize, apply, and generate knowledge (Laurence and Margolis, 1999). While there has been serious effort
+in understanding prerequisite relations in learning
+and education (Bergan and Jeska, 1980; Ohland
+et al., 2004; Vuong et al., 2011), it has not been
+well studied as a semantic relation in computational linguistics, where researchers focus more
+on lexical relations among lexical items (Miller,
+1995) and fine-grained entity relations in knowledge bases (Mintz et al., 2009).
 
-ASCAL VOC and COCO. Us-ing a novel, multi-scale training method the same YOLOv2
+Instead of treating it as a relation extraction or
+link prediction problem using traditional machine
+learning approaches (Talukdar and Cohen, 2012;
+Yang et al., 2015), we seek to better understand
 
-model can run at varying sizes, offering an easy tradeoffbetween speed and accuracy. At 67 FPS, YOLOv2 gets
-76.8 mAP on VOC 2007. At 40 FPS, YOLOv2 gets 78.6mAP, outperforming state-of-the-art methods like Faster RCNN with ResNet and SSD while still running significantlyfaster. Finally we propose a method to jointly train on object detection and classification. Using this method we trainYOLO9000 simultaneously on the COCO detection dataset
-and the ImageNet classification dataset. Our joint trainingallows YOLO9000 to predict detections for object classes
-that don't have labelled detection data. We validate ourapproach on the ImageNet detection task. YOLO9000 gets
-19.7 mAP on the ImageNet detection validation set despiteonly having detection data for 44 of the 200 classes. On the
-156 classes not in COCO, YOLO9000 gets 16.0 mAP. ButYOLO can detect more than just 200 classes; it predicts detections for more than 9000 different object categories. Andit still runs in real-time.
+prerequisite relations from a perspective of cognitive semantics (Croft and Cruse, 2004). Partially motivated by the theory of frame semantics (Fillmore, 2006), or, to understand a concept,
+one needs to understand all the related concepts
+in its "frame", we propose a metric that measures
+prerequisite relations based on a simple observation of human learning. When learning concept A,
+if one needs to refer to concept B for a lot of A's
+related concepts but not vice versa, B would more
+likely be a prerequisite of A than A of B. Specifically, we model a concept in a vector space using
+its related concepts and measure the prerequisite
+relation between two concepts by computing how
+differently the two's related concepts refer to each
+other, or reference distance (RefD).
 
-1. Introduction
+Our simple metric RefD successfully reflects
+some properties of the prerequisite relation such
+as asymmetry and irreflexivity; and can be properly implemented for various applications using
+different concept models. We present an implementation of the metric using Wikipedia by leveraging the links as reference relations among concepts; and present a scalable prerequisite dataset
+construction method by crawling public available
+university course prerequisite websites and mapping them to Wikipedia concepts. Experimental
+results on two datasets that include seven domains
+demonstrate its effectiveness and robustness on
+measuring prerequisites. Surprisingly, our single
+metric based approach significantly outperforms
+baselines which use more sophisticated supervised
+learning. All the datasets are publicly available
+upon request.
 
-General purpose object detection should be fast, accu-rate, and able to recognize a wide variety of objects. Since
+Our main contributions include:
 
-the introduction of neural networks, detection frameworkshave become increasingly fast and accurate. However, most
-detection methods are still constrained to a small set of ob-jects.
+* A novel metric to measure the prerequisite relation among concepts that outperforms existing supervised learning baselines.
 
-Current object detection datasets are limited comparedto datasets for other tasks like classification and tagging.
-The most common detection datasets contain thousands tohundreds of thousands of images with dozens to hundreds
-of tags [3] [10] [2]. Classification datasets have millionsof images with tens or hundreds of thousands of categories
-[20] [2].We would like detection to scale to level of object classification. However, labelling images for detection is farmore expensive than labelling for classification or tagging
-(tags are often user-supplied for free). Thus we are unlikely
+* A new dataset containing 1336 concept pairs
 
-Figure 1: YOLO9000. YOLO9000 can detect a wide variety ofobject classes in real-time.
+in Computer Science and Math.
 
-1
+1668
 
-arXiv:1612.08242v1  [cs.CV]  25 Dec 2016
+Data mining  Algorithm A 
 
-to see detection datasets on the same scale as classificationdatasets in the near future.
+B Statistics 
 
-We propose a new method to harness the large amountof classification data we already have and use it to expand
-the scope of current detection systems. Our method uses ahierarchical view of object classification that allows us to
-combine distinct datasets together.
+Machine learning 
 
-We also propose a joint training algorithm that allowsus to train object detectors on both detection and classification data. Our method leverages labeled detection images tolearn to precisely localize objects while it uses classification
-images to increase its vocabulary and robustness.
+Cluster analysis 
 
-Using this method we train YOLO9000, a real-time ob-ject detector that can detect over 9000 different object categories. First we improve upon the base YOLO detectionsystem to produce YOLOv2, a state-of-the-art, real-time
-detector. Then we use our dataset combination methodand joint training algorithm to train a model on more than
-9000 classes from ImageNet as well as detection data fromCOCO.
+Logic 
 
-All of our code and pre-trained models are available on-line at
+Pseudocode 
+Programming language 
 
-http://pjreddie.com/yolo9000/.
+Figure 1: An example of the reference structure
+for two concepts ("Data mining" and "Algorithm")
+with a prerequisite relation.
 
-2. Better
+2 Measuring Prerequisite Relations
+Our goal is to design a function f : C2 ! R that
+maps a concept pair (A, B) to a real value that
+measures the extent to which A requires B as a
+prerequisite, where C is the concept space. How
+should a concept be represented in C? According
+to the theory of frame semantics, one cannot understand a concept without access to all essential
+knowledge related to it. Such knowledge can be
+actually viewed as a set of related concepts. Thus,
+a concept could be represented by its related concepts in C. For example, the concept "deep learning" may be represented by concepts such as "machine learning", "artificial neural network", etc.
 
-YOLO suffers from a variety of shortcomings relative tostate-of-the-art detection systems. Error analysis of YOLO
+Compared to prerequisites, a more common and
+observable relation among concepts is a reference,
+which widely exists in various forms such as hyperlinks, citations, notes, etc. Although a single
+evidence of reference does not indicate a prerequisite relation, a large number of such evidences
+might make a difference. For example, if most related concepts of A refer to B but few related concepts of B refer to A, then B is more likely to be
+a prerequisite of A, as shown in Figure 1. In order to measure prerequisite relations, we propose
+a reference distance (RefD), which is defined as
 
-compared to Fast R-CNN shows that YOLO makes a sig-nificant number of localization errors. Furthermore, YOLO
-has relatively low recall compared to region proposal-basedmethods. Thus we focus mainly on improving recall and
-localization while maintaining classification accuracy.
+Ref D(A, B) = P
 
-Computer vision generally trends towards larger, deepernetworks [6] [18] [17]. Better performance often hinges on
+ki=1 r(ci,B)*w(ci,A)P
 
-training larger networks or ensembling multiple models to-gether. However, with YOLOv2 we want a more accurate
-detector that is still fast. Instead of scaling up our network,we simplify the network and then make the representation
-easier to learn. We pool a variety of ideas from past workwith our own novel concepts to improve YOLO's performance. A summary of results can be found in Table 2.Batch Normalization.
+ki=1 w(ci,A) -P
 
-Batch normalization leads to sig-nificant improvements in convergence while eliminating the
+ki=1 r(ci,A)*w(ci,B)P
 
-need for other forms of regularization [7]. By adding batchnormalization on all of the convolutional layers in YOLO
-we get more than 2% improvement in mAP. Batch normal-ization also helps regularize the model. With batch normalization we can remove dropout from the model withoutoverfitting.
+ki=1 w(ci,B)
 
-High Resolution Classifier. All state-of-the-art detec-tion methods use classifier pre-trained on ImageNet [16].
-Starting with AlexNet most classifiers operate on input im-ages smaller than
+(1)
 
-256 * 256 [8]. The original YOLO trainsthe classifier network at
+where C = {c1, ..., ck} is the concept space;
+w(ci, A) weights the importance of ci to A; and
+r(ci, A) is an indicator showing whether ci refers
+to A, which could be links in Wikipedia, mentions
+in books, citations in papers, etc.
 
-224 * 224 and increases the reso-lution to
-448 for detection. This means the network has to
+Ref D enables several useful properties
+for the prerequisite relation: 1) normalized:
+Ref D(A, B) 2 [-1, 1]; 2) asymmetric:
+Ref D(A, B)+Ref D(B, A)=0, which means if
+A is a prerequisite of B then B is not a prerequisite of A; and 3) irreflexive: Ref D(A, A)=0,
+which means A is not a prerequisite of itself. To
+capture all three possible prerequisite relations
 
-simultaneously switch to learning object detection and ad-just to the new input resolution.
+between a concept pair, RefD is expected to satisfy
+the following constraints:
 
-For YOLOv2 we first fine tune the classification networkat the full
+RefD(A,B)28????!????:
 
-448 * 448 resolution for 10 epochs on ImageNet.This gives the network time to adjust its filters to work better
+(`, 1], if B is a prerequisite of A
+[-`, `], if no prerequisite relation
+[-1, -`), if A is a prerequisite of B
 
-on higher resolution input. We then fine tune the resultingnetwork on detection. This high resolution classification
-network gives us an increase of almost 4% mAP.Convolutional With Anchor Boxes. YOLO predicts
-the coordinates of bounding boxes directly using fully con-nected layers on top of the convolutional feature extractor.
-Instead of predicting coordinates directly Faster R-CNNpredicts bounding boxes using hand-picked priors [15]. Using only convolutional layers the region proposal network(RPN) in Faster R-CNN predicts offsets and confidences for
-anchor boxes. Since the prediction layer is convolutional,the RPN predicts these offsets at every location in a feature
-map. Predicting offsets instead of coordinates simplifies theproblem and makes it easier for the network to learn.
+where ` is a positive threshold.
 
-We remove the fully connected layers from YOLO anduse anchor boxes to predict bounding boxes. First we
-eliminate one pooling layer to make the output of the net-work's convolutional layers higher resolution. We also
-shrink the network to operate on 416 input images insteadof
+Equation 1 provides a general framework to calculate RefD. In practice, we need to specify the
+concept space C, the weight w, and the reference
+indicator function r.
 
-448*448. We do this because we want an odd number oflocations in our feature map so there is a single center cell.
+3 Wikipedia-based RefD Implementation
+We now implement RefD using Wikipedia. As a
+widely used open-access encyclopedia, Wikipedia
+provides relatively up-to-date and high quality
+knowledge and has been successfully utilized as
+explicit concepts (Gabrilovich and Markovitch,
+2007). Moreover, the rich hyperlinks created by
+Wiki editors provide a natural way to calculate the
+reference indicator function r.
 
-Objects, especially large objects, tend to occupy the centerof the image so it's good to have a single location right at
-the center to predict these objects instead of four locationsthat are all nearby. YOLO's convolutional layers downsample the image by a factor of 32 so by using an input imageof
+Specifically, the concept space C consists of
+all Wikipedia articles. r(c, A) represents whether
+there is a link from Wiki article c to A. For
+w(c, A), we experiment with two methods:
 
-416 we get an output feature map of 13 * 13.When we move to anchor boxes we also decouple the
+* EQUAL: A is represented by the concepts
 
-class prediction mechanism from the spatial location andinstead predict class and objectness for every anchor box.
-Following YOLO, the objectness prediction still predictsthe IOU of the ground truth and the proposed box and the
-class predictions predict the conditional probability of thatclass given that there is an object.
+linked from it (L(A)) with equal weights.
 
-Using anchor boxes we get a small decrease in accuracy.YOLO only predicts 98 boxes per image but with anchor
-boxes our model predicts more than a thousand. Withoutanchor boxes our intermediate model gets
+w(c, A) = (1 if c 2 L(A)0 if c /2 L(A)
 
-69.5 mAP with arecall of
-81%. With anchor boxes our model gets 69.2 mAPwith a recall of
+* TFIDF: A is represented by the concepts
 
-88%. Even though the mAP decreases, theincrease in recall means that our model has more room to
+linked from it with TFIDF weights.
 
-improve.Dimension Clusters. We encounter two issues with anchor boxes when using them with YOLO. The first is thatthe box dimensions are hand picked. The network can learn
-to adjust the boxes appropriately but if we pick better priorsfor the network to start with we can make it easier for the
-network to learn to predict good detections.Instead of choosing priors by hand, we run k-means
-clustering on the training set bounding boxes to automat2
+w(c, A) = (tf (c, A) * log
 
-01 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+N
+df(c) if c 2 L(A)0
 
-COCO
+if c /2 L(A)
 
-# Clusters
-Avg IOU
+where tf (c, A) is the number of times c being linked from A; N is the total number of
+Wikipedia articles; and df (c) is the number
+of Wikipedia articles where c appears.
 
+4 Experiments
+In order to evaluate the proposed metric, we apply
+it to predicting prerequisite relations in Wikipedia,
+i.e., whether one article in Wikipedia is a prerequisite of another article. Given a pair of concepts
+(A,B), we predict whether B is a prerequisite of
+A or not. Both pairs where A is a prerequisite of
+
+1669
+
+Dataset Domain # Pairs # Prerequisites
+CrowdComp
+
+Meiosis 400 67
+Public-key Cryp. 200 27
+Parallel Postulate 200 25
+Newton's Laws 400 44
+Global Warming 400 43
+
+Course CS 678 108MATH 658 75
+
+Table 1: Statistics of CrowdComp and Course
+Datasets
+
+Domain MaxEnt# MaxEnt EQUAL TFIDF
+Meiosis 51 60.2 53 55.7
+Public-key Cryp. 67.1 60.3 55.1 57.7
+Parallel Postulate 64.7 73.6 70.5 67.9
+Newton's Laws 53.9 57.7 63.7 64.6
+Global Warming 56.8 50.0 57.4 60.1
+Average 58.7 60.4 60.0* 61.2*
+
+Table 2: Comparison of out-of-domain training
+accuracies of a MaxEnt classifier and RefD using
+EQUAL and TFIDF weighting. MaxEnt# is the
+number reported by Talukdar et al. (2012). MaxEnt shows the performance of our implementation.
+* indicates the difference between RefD and MaxEnt is statistically significant (p < 0.01).
+
+B and pairs where no prerequisite relation exists
+will be viewed as negative examples.
+
+RefD is tested on two datasets: CrowdComp
+dataset (Talukdar and Cohen, 2012) and a Course
+prerequisite dataset collected by us. We compare
+RefD with a Maximum Entropy (MaxEnt) classifier which exploits graph-based features such as
+PageRank scores and content-based features such
+as the category information, whether a title of concept is mentioned in the first sentence of the other
+concept, the number of times a concept is linked
+from the other, etc. (Talukdar and Cohen, 2012).
+All experiments use a Wikipedia dump of Dec 8,
+2014.
+
+4.1 Results on the CrowdComp Dataset
+The CrowdComp dataset was collected using Amazon Mechanical Turk by Talukdar et
+al. (2012). It contains binary-labeled concept
+pairs from five different domains, including meiosis, public-key cryptography, the parallel postulate, Newton's laws of motion, and global warming. The label of the prerequisite relation for each
+pair is assigned using majority vote. Details of the
+dataset are shown in Table 1.
+
+Following Talukdar et al. (2012), we evaluate
+
+CS MATH
+A P R F A P R F
+MaxEnt 72.8 87.6 53.2 66.1 69.0 78.1 53 63.1
+EQUAL 76.4* 80.4 69.9 74.7* 73.9* 78.4 67.3 71.9*
+TFIDF 77.1* 82.3 69.1 75.1* 70.3* 76.3 60.1 66.7*
+
+Table 3: Comparison of in-domain training accuracies, precision, recall, and F1 measure of MaxEnt and RefD using EQUAL and TFIDF weighting. * indicates the improvement over MaxEnt is
+statistically significant (p < 0.01).
+
+different methods in a "leave one domain out"
+manner, where data from one domain is used
+for testing and data from other four for training.
+Classes in the training and testing set are balanced
+by oversampling the minority class. Table 2 lists
+the accuracies of different methods. In terms of
+average performance, RefD achieves comparable
+average accuracy as MaxEnt. When TFIDF is
+used to calculate w, RefD performs better than
+MaxEnt. Also we notice that our implementation
+of MaxEnt classifier achieves higher accuracy than
+reported in the original paper, which may be due
+to the difference between Wiki dumps used. In addition, we can see that there are large differences
+in performance across different domains, which is
+mainly due to two reasons. First, the coverage of
+Wikipedia for different domains may vary a lot.
+Some domains are more popular and thus edited
+more frequently, leading to a better quality of articles and a more complete link structure. Second, since the ground-truth labels are collected by
+crowdsourcing and there is no guarantee for workers' knowledge about a certain domain, the quality
+of labels for different domains varies.
+
+4.2 Results on the Course Dataset
+We also built a Course dataset with the help
+of information available on a university's course
+website containing prerequisite relations between
+courses. For example, "CS 331 Data Structures
+and Algorithms" is a prerequisite for "CS 422
+Data mining". We get the prerequisite pairs by
+crawling the website and linking the course to
+Wikipedia using simple rules such as title matching and content similarity. In order to get negative samples, we randomly sample 600 pairs using
+concepts appearing in the prerequisite pairs. All
+pairs are then checked by two domain experts by
+removing pairs with incorrect labels. Table 1 lists
+the information of the dataset.
+
+Evaluation uses in-domain 5-fold cross1670
+
+0 0.2 0.4 0.6 0.8 1.0Recall0
+0.2
+0.4
+
+0.6
+0.8
+
+1.0
+
+Precision
+
+MaxEnt (area = 0.777)
+EQUAL (area = 0.810)
+TFIDF (area = 0.831)
+
+(a) CS
+
+0 0.2 0.4 0.6 0.8 1.0Recall0
+0.2
+0.4
+
+0.6
+0.8
+
+1.0
+
+Precision
+
+MaxEnt (area = 0.730)
+EQUAL (area = 0.802)
+TFIDF (area = 0.776)
+
+(b) MATH
+Figure 2: Comparison of Precision-Recall curves
+of MaxEnt and RefD (using EQUAL and TFIDF
+weighting) on the Course dataset.
+
+validation and classes are balanced by oversampling the minority class. Table 3 lists the
+performance comparison of different methods on
+accuracy, precision, recall and F1 score. We can
+see that RefD outperforms MaxEnt in terms of
+accuracy, recall, and F1 score on both CS and
+MATH domain. Because MaxEnt relies on many
+features but there are only limited distinct positive
+samples in the dataset, it is more likely to overfit
+the training data, which leads to high precision but
+low recall on test set. In order to better compare
+precision and recall, we plot the Precision-Recall
+curves of different methods, as shown in Figure 2.
+RefD shows a clear improvement in the area under
+the Precision-Recall curve.
+
+Comparing two weighting methods, we find that
+TFIDF performs slightly better than EQUAL on
+CS while EQUAL has higher scores than TFIDF
+on MATH. Since how to compute w in RefD is
+a crucial problem, our ongoing work is to explore more sophisticated semantic representations
+to measure prerequisite relations. A natural extension to the two simple methods here is to represent
+
+-1.0 -0.5 0.0 0.5 1.0`
+0.50
+0.52
+0.54
+0.56
+0.58
+0.60
+0.62
+
+Accuracy
+(avg
+.)
+
+` = 0.05
+
+(a) CrowdComp
+
+-1.0 -0.5 0.0 0.5 1.0`
+0.50
+
+0.55
+0.60
+0.65
+0.70
 0.75
 
-VOC 2007
-
-Figure 2: Clustering box dimensions on VOC and COCO. Werun k-means clustering on the dimensions of bounding boxes to get
-good priors for our model. The left image shows the average IOUwe get with various choices for
-
-k. We find that k = 5 gives a goodtradeoff for recall vs. complexity of the model. The right image
-
-shows the relative centroids for VOC and COCO. Both sets of pri-ors favor thinner, taller boxes while COCO has greater variation in
-size than VOC.
-
-ically find good priors. If we use standard k-means withEuclidean distance larger boxes generate more error than
-smaller boxes. However, what we really want are priorsthat lead to good IOU scores, which is independent of the
-size of the box. Thus for our distance metric we use:
-
-d(box, centroid) = 1 - IOU(box, centroid)
-We run k-means for various values of k and plot the av-erage IOU with closest centroid, see Figure 2. We choose
-k = 5 as a good tradeoff between model complexity andhigh recall. The cluster centroids are significantly different
-than hand-picked anchor boxes. There are fewer short, wideboxes and more tall, thin boxes.
-
-We compare the average IOU to closest prior of our clus-tering strategy and the hand-picked anchor boxes in Table 1.
-At only 5 priors the centroids perform similarly to 9 anchorboxes with an average IOU of 61.0 compared to 60.9. If
-we use 9 centroids we see a much higher average IOU. Thisindicates that using k-means to generate our bounding box
-starts the model off with a better representation and makesthe task easier to learn.
-
-Box Generation # Avg IOUCluster SSE 5 58.7
-Cluster IOU 5 61.0Anchor Boxes [15] 9 60.9
-Cluster IOU 9 67.2
-
-Table 1: Average IOU of boxes to closest priors on VOC 2007.The average IOU of objects on VOC 2007 to their closest, unmodified prior using different generation methods. Clustering givesmuch better results than using hand-picked priors.
-
-Direct location prediction. When using anchor boxeswith YOLO we encounter a second issue: model instability,
-especially during early iterations. Most of the instabilitycomes from predicting the
-
-(x, y) locations for the box. Inregion proposal networks the network predicts values
-
-tx and
-ty and the (x, y) center coordinates are calculated as:
-
-x = (tx * wa) - xa
-
-y = (ty * ha) - ya
-
-For example, a prediction of tx = 1 would shift the boxto the right by the width of the anchor box, a prediction of
-
-tx = -1 would shift it to the left by the same amount.This formulation is unconstrained so any anchor box can
-end up at any point in the image, regardless of what loca-tion predicted the box. With random initialization the model
-takes a long time to stabilize to predicting sensible offsets.Instead of predicting offsets we follow the approach of
-YOLO and predict location coordinates relative to the loca-tion of the grid cell. This bounds the ground truth to fall
-between 0 and 1. We use a logistic activation to constrainthe network's predictions to fall in this range.
-
-The network predicts 5 bounding boxes at each cell inthe output feature map. The network predicts 5 coordinates
-for each bounding box, tx, ty, tw, th, and to. If the cell isoffset from the top left corner of the image by
-
-(cx, cy) andthe bounding box prior has width and height
-pw, ph, thenthe predictions correspond to:
-
-bx = oe(tx) + cx
-
-by = oe(ty) + cy
-bw = pwetw
-
-bh = pheth
-P r(object) * IOU (b, object) = oe(to)
-
-Since we constrain the location prediction theparametrization is easier to learn, making the network
-more stable. Using dimension clusters along with directlypredicting the bounding box center location improves
-YOLO by almost 5% over the version with anchor boxes.Fine-Grained Features.This modified YOLO predicts
-detections on a 13 * 13 feature map. While this is suffi-cient for large objects, it may benefit from finer grained features for localizing smaller objects. Faster R-CNN and SSDboth run their proposal networks at various feature maps in
-the network to get a range of resolutions. We take a differ-ent approach, simply adding a passthrough layer that brings
-features from an earlier layer at 26 * 26 resolution.The passthrough layer concatenates the higher resolution
-features with the low resolution features by stacking adja-cent features into different channels instead of spatial locations, similar to the identity mappings in ResNet. This
-
-3   **** Error reading a content stream. The page may be incomplete.
-               Output may be incorrect.
-
-Figure 3: Bounding boxes with dimension priors and locationprediction. We predict the width and height of the box as offsets
-from cluster centroids. We predict the center coordinates of thebox relative to the location of filter application using a sigmoid
-function.
-
-turns the 26 * 26 * 512 feature map into a 13 * 13 * 2048feature map, which can be concatenated with the original
-features. Our detector runs on top of this expanded featuremap so that it has access to fine grained features. This gives
-a modest 1% performance increase.Multi-Scale Training.
-
-The original YOLO uses an inputresolution of
-448 * 448. With the addition of anchor boxeswe changed the resolution to
-
-416*416. However, since ourmodel only uses convolutional and pooling layers it can be
-
-resized on the fly. We want YOLOv2 to be robust to runningon images of different sizes so we train this into the model.
-
-Instead of fixing the input image size we change the net-work every few iterations. Every 10 batches our network
-randomly chooses a new image dimension size. Since ourmodel downsamples by a factor of 32, we pull from the
-following multiples of 32: {320, 352, ..., 608}. Thus thesmallest option is
-
-320 * 320 and the largest is 608 * 608.We resize the network to that dimension and continue training.
-
-This regime forces the network to learn to predict wellacross a variety of input dimensions. This means the same
-
-network can predict detections at different resolutions. Thenetwork runs faster at smaller sizes so YOLOv2 offers an
-easy tradeoff between speed and accuracy.
-
-At low resolutions YOLOv2 operates as a cheap, fairlyaccurate detector. At
-
-288 * 288 it runs at more than 90 FPSwith mAP almost as good as Fast R-CNN. This makes it
-
-ideal for smaller GPUs, high framerate video, or multiplevideo streams.
-
-At high resolution YOLOv2 is a state-of-the-art detectorwith 78.6 mAP on VOC 2007 while still operating above
-real-time speeds. See Table 3 for a comparison of YOLOv2
-
-Mean Average Precision
-
-Frames Per Second
-
-R-CNN
-
-YOLO
-
-Fast R-CNN
-
-Faster R-CNN
-
-Faster R-CNNResnet SSD512
-
-SSD300
-
-YOLOv280
-
-70
-60 0 50 10030
-
-Figure 4: Accuracy and speed on VOC 2007.
-with other frameworks on VOC 2007. Figure 4Further Experiments. We train YOLOv2 for detection
-on VOC 2012. Table 4 shows the comparative performanceof YOLOv2 versus other state-of-the-art detection systems.
-YOLOv2 achieves 73.4 mAP while running far faster thancompeting methods. We also train on COCO and compare
-to other methods in Table 5. On the VOC metric (IOU =.5) YOLOv2 gets 44.0 mAP, comparable to SSD and Faster
-R-CNN.
-
-Detection Frameworks Train mAP FPSFast R-CNN [5] 2007+2012 70.0 0.5
-
-Faster R-CNN VGG-16[15] 2007+2012 73.2 7Faster R-CNN ResNet[6] 2007+2012 76.4 5
-YOLO [14] 2007+2012 63.4 45SSD300 [11] 2007+2012 74.3 46
-SSD500 [11] 2007+2012 76.8 19YOLOv2
-
-288 * 288 2007+2012 69.0 91YOLOv2
-352 * 352 2007+2012 73.7 81YOLOv2
-416 * 416 2007+2012 76.8 67YOLOv2
-480 * 480 2007+2012 77.8 59YOLOv2
-544 * 544 2007+2012 78.6 40
-
-Table 3: Detection frameworks on PASCAL VOC 2007.YOLOv2 is faster and more accurate than prior detection methods. It can also run at different resolutions for an easy tradeoffbetween speed and accuracy. Each YOLOv2 entry is actually the
-same trained model with the same weights, just evaluated at a dif-ferent size. All timing information is on a Geforce GTX Titan X
-(original, not Pascal model).
-
-3. Faster
-
-We want detection to be accurate but we also want it to befast. Most applications for detection, like robotics or selfdriving cars, rely on low latency predictions. In order to
-
-4   **** Error: File did not complete the page properly and may be damaged.
-               Output may be incorrect.
-
-
-YOLO YOLOv2batch norm? X X X X X X X X
-hi-res classifier? X X X X X X Xconvolutional? X X X X X X
-
-anchor boxes? X Xnew network? X X X X X
-dimension priors? X X X Xlocation prediction? X X X X
-
-passthrough? X X Xmulti-scale? X X
-hi-res detector? XVOC2007 mAP 63.4 65.8 69.5 69.2 69.6 74.4 75.4 76.8 78.6
-
-Table 2: The path from YOLO to YOLOv2. Most of the listed design decisions lead to significant increases in mAP. Twoexceptions are switching to a fully convolutional network with anchor boxes and using the new network. Switching to the
-anchor box style approach increased recall without changing mAP while using the new network cut computation by 33%.
-
-Method data mAP aero bike bird boat bottle bus car cat chair cow table dog horse mbike person plant sheep sofa train tvFast R-CNN [5] 07++12 68.4 82.3 78.4 70.8 52.3 38.7 77.8 71.6 89.3 44.2 73.0 55.0 87.5 80.5 80.8 72.0 35.1 68.3 65.7 80.4 64.2
-Faster R-CNN [15] 07++12 70.4 84.9 79.8 74.3 53.9 49.8 77.5 75.9 88.5 45.6 77.1 55.3 86.9 81.7 80.9 79.6 40.1 72.6 60.9 81.2 61.5YOLO [14] 07++12 57.9 77.0 67.2 57.7 38.3 22.7 68.3 55.9 81.4 36.2 60.8 48.5 77.2 72.3 71.3 63.5 28.9 52.2 54.8 73.9 50.8
-SSD300 [11] 07++12 72.4 85.6 80.1 70.5 57.6 46.2 79.4 76.1 89.2 53.0 77.0 60.8 87.0 83.1 82.3 79.4 45.9 75.9 69.5 81.9 67.5SSD512 [11] 07++12 74.9 87.4 82.3 75.8 59.0 52.6 81.7 81.5 90.0 55.4 79.0 59.8 88.4 84.3 84.7 83.3 50.2 78.0 66.3 86.3 72.0
-ResNet [6] 07++12 73.8 86.5 81.6 77.2 58.0 51.0 78.6 76.6 93.2 48.6 80.4 59.0 92.1 85.3 84.8 80.7 48.1 77.3 66.5 84.7 65.6YOLOv2
-
-544 07++12 73.4 86.3 82.0 74.8 59.2 51.8 79.8 76.5 90.6 52.1 78.2 58.5 89.3 82.5 83.4 81.3 49.1 77.2 62.4 83.8 68.7
-
-Table 4: PASCAL VOC2012 test detection results. YOLOv2 performs on par with state-of-the-art detectors like FasterR-CNN with ResNet and SSD512 and is
-
-2 - 10* faster.
-
-maximize performance we design YOLOv2 to be fast fromthe ground up.
-
-Most detection frameworks rely on VGG-16 as the basefeature extractor [17]. VGG-16 is a powerful, accurate classification network but it is needlessly complex. The con-volutional layers of VGG-16 require 30.69 billion floating
-point operations for a single pass over a single image at
-224 * 224 resolution.The YOLO framework uses a custom network based on
-
-the Googlenet architecture [19]. This network is faster thanVGG-16, only using 8.52 billion operations for a forward
-pass. However, it's accuracy is slightly worse than VGG-16. For single-crop, top-5 accuracy at
-
-224 * 224, YOLO'scustom model gets 88.0% ImageNet compared to 90.0% for
-
-VGG-16.Darknet-19. We propose a new classification model to
-be used as the base of YOLOv2. Our model builds off ofprior work on network design as well as common knowledge in the field. Similar to the VGG models we use mostly
-3 * 3 filters and double the number of channels after ev-ery pooling step [17]. Following the work on Network in
-
-Network (NIN) we use global average pooling to make pre-dictions as well as
-
-1 * 1 filters to compress the feature rep-resentation between
-
-3 * 3 convolutions [9]. We use batchnormalization to stabilize training, speed up convergence,
-
-and regularize the model [7].Our final model, called Darknet-19, has 19 convolutional
-layers and 5 maxpooling layers. For a full description see
-
-Table 6. Darknet-19 only requires 5.58 billion operationsto process an image yet achieves
-
-72.9% top-1 accuracy and
-91.2% top-5 accuracy on ImageNet.Training for classification. We train the network on
-
-the standard ImageNet 1000 class classification dataset for160 epochs using stochastic gradient descent with a starting
-learning rate of 0.1, polynomial rate decay with a power of
-4, weight decay of 0.0005 and momentum of 0.9 using theDarknet neural network framework [13]. During training
-
-we use standard data augmentation tricks including randomcrops, rotations, and hue, saturation, and exposure shifts.
-
-As discussed above, after our initial training on imagesat
-224 * 224 we fine tune our network at a larger size, 448.For this fine tuning we train with the above parameters but
-
-for only 10 epochs and starting at a learning rate of 10-3. Atthis higher resolution our network achieves a top-1 accuracy
-of 76.5% and a top-5 accuracy of 93.3%.Training for detection. We modify this network for detection by removing the last convolutional layer and insteadadding on three
-
-3 * 3 convolutional layers with 1024 fil-ters each followed by a final
-
-1 * 1 convolutional layer withthe number of outputs we need for detection. For VOC we
-
-predict 5 boxes with 5 coordinates each and 20 classes perbox so 125 filters. We also add a passthrough layer from the
-final 3 * 3 * 512 layer to the second to last convolutionallayer so that our model can use fine grain features.
-
-We train the network for 160 epochs with a startinglearning rate of
-
-10-3, dividing it by 10 at 60 and 90 epochs.
-
-5
-
-0.5:0.95 0.5 0.75 S M L 1 10 100 S M LFast R-CNN [5] train 19.7 35.9 - - - - - - - - - -
-Fast R-CNN[1] train 20.5 39.9 19.4 4.1 20.0 35.8 21.3 29.5 30.1 7.3 32.1 52.0Faster R-CNN[15] trainval 21.9 42.7 - - - - - - - - - -
-ION [1] train 23.6 43.2 23.6 6.4 24.1 38.3 23.2 32.7 33.5 10.1 37.7 53.6Faster R-CNN[10] trainval 24.2 45.3 23.5 7.7 26.4 37.1 23.8 34.0 34.6 12.0 38.5 54.4
-SSD300 [11] trainval35k 23.2 41.2 23.4 5.3 23.2 39.6 22.5 33.2 35.3 9.6 37.6 56.5SSD512 [11] trainval35k 26.8 46.5 27.8 9.0 28.9 41.9 24.8 37.5 39.8 14.0 43.5 59.0
-YOLOv2 [11] trainval35k 21.6 44.0 19.2 5.0 22.4 35.5 20.7 31.6 33.3 9.8 36.5 54.4
-
-Table 5: Results on COCO test-dev2015. Table adapted from [11]
-
-Type Filters Size/Stride OutputConvolutional 32
-
-3 * 3 224 * 224Maxpool
-2 * 2/2 112 * 112Convolutional 64
-
-3 * 3 112 * 112Maxpool
-2 * 2/2 56 * 56Convolutional 128
-
-3 * 3 56 * 56Convolutional 64
-1 * 1 56 * 56Convolutional 128
-3 * 3 56 * 56Maxpool
-2 * 2/2 28 * 28Convolutional 256
-
-3 * 3 28 * 28Convolutional 128
-1 * 1 28 * 28Convolutional 256
-3 * 3 28 * 28Maxpool
-2 * 2/2 14 * 14Convolutional 512
-
-3 * 3 14 * 14Convolutional 256
-1 * 1 14 * 14Convolutional 512
-3 * 3 14 * 14Convolutional 256
-1 * 1 14 * 14Convolutional 512
-3 * 3 14 * 14Maxpool
-2 * 2/2 7 * 7Convolutional 1024
-
-3 * 3 7 * 7Convolutional 512
-1 * 1 7 * 7Convolutional 1024
-3 * 3 7 * 7Convolutional 512
-1 * 1 7 * 7Convolutional 1024
-3 * 3 7 * 7
-
-Convolutional 1000 1 * 1 7 * 7Avgpool Global
-
-1000Softmax
-
-Table 6: Darknet-19.
-We use a weight decay of 0.0005 and momentum of 0.9.We use a similar data augmentation to YOLO and SSD with
-random crops, color shifting, etc. We use the same trainingstrategy on COCO and VOC.
-
-4. Stronger
-
-We propose a mechanism for jointly training on classi-fication and detection data. Our method uses images labelled for detection to learn detection-specific informationlike bounding box coordinate prediction and objectness as
-well as how to classify common objects. It uses images withonly class labels to expand the number of categories it can
-detect.During training we mix images from both detection and
-classification datasets. When our network sees an imagelabelled for detection we can backpropagate based on the
-full YOLOv2 loss function. When it sees a classificationimage we only backpropagate loss from the classificationspecific parts of the architecture.
-
-This approach presents a few challenges. Detectiondatasets have only common objects and general labels, like
-"dog" or "boat". Classification datasets have a much widerand deeper range of labels. ImageNet has more than a hundred breeds of dog, including "Norfolk terrier", "Yorkshireterrier", and "Bedlington terrier". If we want to train on
-both datasets we need a coherent way to merge these labels.
-
-Most approaches to classification use a softmax layeracross all the possible categories to compute the final probability distribution. Using a softmax assumes the classesare mutually exclusive. This presents problems for combining datasets, for example you would not want to combineImageNet and COCO using this model because the classes
-"Norfolk terrier" and "dog" are not mutually exclusive.
-
-We could instead use a multi-label model to combine thedatasets which does not assume mutual exclusion. This approach ignores all the structure we do know about the data,for example that all of the COCO classes are mutually exclusive.Hierarchical classification.
-
-ImageNet labels are pulledfrom WordNet, a language database that structures concepts
-
-and how they relate [12]. In WordNet, "Norfolk terrier" and"Yorkshire terrier" are both hyponyms of "terrier" which is
-a type of "hunting dog", which is a type of "dog", which isa "canine", etc. Most approaches to classification assume a
-flat structure to the labels however for combining datasets,structure is exactly what we need.
-
-WordNet is structured as a directed graph, not a tree, be-cause language is complex. For example a "dog" is both
-a type of "canine" and a type of "domestic animal" whichare both synsets in WordNet. Instead of using the full graph
-structure, we simplify the problem by building a hierarchi-cal tree from the concepts in ImageNet.
-
-To build this tree we examine the visual nouns in Ima-geNet and look at their paths through the WordNet graph to
-the root node, in this case "physical object". Many synsetsonly have one path through the graph so first we add all of
-those paths to our tree. Then we iteratively examine theconcepts we have left and add the paths that grow the tree
-by as little as possible. So if a concept has two paths to theroot and one path would add three edges to our tree and the
-other would only add one edge, we choose the shorter path.
-
-6
-
-The final result is WordTree, a hierarchical model of vi-sual concepts. To perform classification with WordTree we
-predict conditional probabilities at every node for the prob-ability of each hyponym of that synset given that synset. For
-example, at the "terrier" node we predict:
-
-P r(Norfolk terrier|terrier)
-P r(Yorkshire terrier|terrier)
-P r(Bedlington terrier|terrier)
-
-...
-
-If we want to compute the absolute probability for a par-ticular node we simply follow the path through the tree to
-the root node and multiply to conditional probabilities. Soif we want to know if a picture is of a Norfolk terrier we
-compute:
-
-P r(Norfolk terrier) = P r(Norfolk terrier|terrier)*
-
-P r(terrier|hunting dog)*
-
-. . .**
-P r(mammal|P r(animal)*
-
-P r(animal|physical object)
-
-For classification purposes we assume that the the imagecontains an object:
-
-P r(physical object) = 1.
-To validate this approach we train the Darknet-19 modelon WordTree built using the 1000 class ImageNet. To build
-
-WordTree1k we add in all of the intermediate nodes whichexpands the label space from 1000 to 1369. During training
-we propagate ground truth labels up the tree so that if an im-age is labelled as a "Norfolk terrier" it also gets labelled as
-a "dog" and a "mammal", etc. To compute the conditionalprobabilities our model predicts a vector of 1369 values and
-we compute the softmax over all sysnsets that are hyponymsof the same concept, see Figure 5.
-
-Using the same training parameters as before, our hi-erarchical Darknet-19 achieves
-
-71.9% top-1 accuracy and
-90.4% top-5 accuracy. Despite adding 369 additional con-cepts and having our network predict a tree structure our accuracy only drops marginally. Performing classification inthis manner also has some benefits. Performance degrades
-gracefully on new or unknown object categories. For exam-ple, if the network sees a picture of a dog but is uncertain
-what type of dog it is, it will still predict "dog" with highconfidence but have lower confidences spread out among
-the hyponyms.
-
-This formulation also works for detection. Now, in-stead of assuming every image has an object, we use
-
-YOLOv2's objectness predictor to give us the value of
-P r(physical object). The detector predicts a bounding box
-
-...
-kit foxEnglish setterSiberian huskyAustralian terrierEnglish springergrey whalelesser pandaEgyptian catibexPersian catcougar rubber eraserstolecarbonara
-
-...
-thingmatterobjectphenomenonbody partbody of waterheadhairveinmouthocean cloudsnowwave
-
-softmax
-softmax softmax softmaxsoftmax softmax
-
-WordTree1k
-
-Imagenet 1k
-
-986
-
-1355
-Figure 5: Prediction on ImageNet vs WordTree. Most Ima-geNet models use one large softmax to predict a probability distribution. Using WordTree we perform multiple softmax operationsover co-hyponyms.
-
-and the tree of probabilities. We traverse the tree down, tak-ing the highest confidence path at every split until we reach
-some threshold and we predict that object class.Dataset combination with WordTree.
-
-We can useWordTree to combine multiple datasets together in a sensible fashion. We simply map the categories in the datasetsto synsets in the tree. Figure 6 shows an example of using
-WordTree to combine the labels from ImageNet and COCO.WordNet is extremely diverse so we can use this technique
-with most datasets.Joint classification and detection.
-
-Now that we cancombine datasets using WordTree we can train our joint
-
-model on classification and detection. We want to trainan extremely large scale detector so we create our combined dataset using the COCO detection dataset and thetop 9000 classes from the full ImageNet release. We also
-need to evaluate our method so we add in any classes fromthe ImageNet detection challenge that were not already included. The corresponding WordTree for this dataset has9418 classes. ImageNet is a much larger dataset so we balance the dataset by oversampling COCO so that ImageNetis only larger by a factor of 4:1.
-
-Using this dataset we train YOLO9000. We use the baseYOLOv2 architecture but only 3 priors instead of 5 to limit
-the output size. When our network sees a detection imagewe backpropagate loss as normal. For classification loss, we
-only backpropagate loss at or above the corresponding levelof the label. For example, if the label is "dog" we do assign
-any error to predictions further down in the tree, "GermanShepherd" versus "Golden Retriever", because we do not
-have that information.
-
-7
-
-airplane apple backpack banana bat bear bed bench bicycle bird .....zebra70
-
-COCO
-
-Afghanhound Africanchameleon Africancrocodile Africanelephant Africangrey Africanhunting dogAiredale Americanalligator Americanblack bear Americanchameleon.....zucchini22k
-
-ImageNet
-
-animal artifact natural object phenomenon
-
-plant fungusvehicle equipmentcat dog fish
-
-tabby Persian
-
-ground water air
-
-airplanecar
-
-biplane jet airbus stealthfighter
-
-houseplant
-
-vascularplant
-
-physical object WordTree
-
-goldenfern potatofern feltfern sealavender Americantwinflower
-Figure 6: Combining datasets using WordTree hierarchy. Us-ing the WordNet concept graph we build a hierarchical tree of visual concepts. Then we can merge datasets together by mappingthe classes in the dataset to synsets in the tree. This is a simplified
-view of WordTree for illustration purposes.
-
-When it sees a classification image we only backpropa-gate classification loss. To do this we simply find the bounding box that predicts the highest probability for that classand we compute the loss on just its predicted tree. We also
-assume that the predicted box overlaps what would be theground truth label by at least
-
-.3 IOU and we backpropagateobjectness loss based on this assumption.
-
-Using this joint training, YOLO9000 learns to find ob-jects in images using the detection data in COCO and it
-learns to classify a wide variety of these objects using datafrom ImageNet.
-
-We evaluate YOLO9000 on the ImageNet detection task.The detection task for ImageNet shares on 44 object categories with COCO which means that YOLO9000 has onlyseen classification data for the majority of the test images,
-not detection data. YOLO9000 gets 19.7 mAP overall with16.0 mAP on the disjoint 156 object classes that it has never
-seen any labelled detection data for. This mAP is higherthan results achieved by DPM but YOLO9000 is trained on
-different datasets with only partial supervision [4]. It alsois simultaneously detecting 9000 other object categories, all
-in real-time.
-
-When we analyze YOLO9000's performance on Ima-geNet we see it learns new species of animals well but struggles with learning categories like clothing and equipment.
-
-diaper 0.0horizontal bar 0.0
-rubber eraser 0.0sunglasses 0.0
-swimming trunks 0.0...
-red panda 50.7fox 52.1
-koala bear 54.3tiger 61.0
-armadillo 61.7
-
-Table 7: YOLO9000 Best and Worst Classes on ImageNet.The classes with the highest and lowest AP from the 156 weakly
-supervised classes. YOLO9000 learns good models for a variety ofanimals but struggles with new classes like clothing or equipment.
-
-New animals are easier to learn because the objectness pre-dictions generalize well from the animals in COCO. Conversely, COCO does not have bounding box label for anytype of clothing, only for person, so YOLO9000 struggles to
-model categories like "sunglasses" or "swimming trunks".
-
-5. Conclusion
-
-We introduce YOLOv2 and YOLO9000, real-time de-tection systems. YOLOv2 is state-of-the-art and faster
-
-than other detection systems across a variety of detectiondatasets. Furthermore, it can be run at a variety of image
-sizes to provide a smooth tradeoff between speed and accu-racy.
-
-YOLO9000 is a real-time framework for detection morethan 9000 object categories by jointly optimizing detection
-and classification. We use WordTree to combine data fromvarious sources and our joint optimization technique to train
-simultaneously on ImageNet and COCO. YOLO9000 is astrong step towards closing the dataset size gap between detection and classification.
-
-Many of our techniques generalize outside of object de-tection. Our WordTree representation of ImageNet offers a
-
-richer, more detailed output space for image classification.Dataset combination using hierarchical classification would
-be useful in the classification and segmentation domains.Training techniques like multi-scale training could provide
-benefit across a variety of visual tasks.
-
-For future work we hope to use similar techniques forweakly supervised image segmentation. We also plan to
-
-improve our detection results using more powerful match-ing strategies for assigning weak labels to classification data
-during training. Computer vision is blessed with an enor-mous amount of labelled data. We will continue looking
-for ways to bring different sources and structures of datatogether to make stronger models of the visual world.
-
-8
+Accuracy
+(avg
+.)
+
+` = 0.02
+
+(b) Course
+Figure 3: Average accuracy on two datasets with a
+given threshold of RefD using TFIDF weighting.
+
+a concept using WordNet (Miller, 1995), Explicit
+Semantic Analysis (Gabrilovich and Markovitch,
+2007), or Word2vec embeddings (Mikolov et al.,
+2013). Incorporating these representations may
+improve the performance of RefD.
+
+4.3 Parameter Analysis and Case Study
+Since using RefD to predict prerequisites requires
+setting a threshold `, we also investigate the relation between the threshold and the performance of
+prediction, as shown in Figure 3. We can see that a
+threshold of 0.05 for RefD using TFIDF achieves
+the highest average accuracy on the CrowdComp
+dataset while a threshold of 0.02 works the best for
+Course dataset. Empirically we find that a threshold between 0.02 and 0.1 yields a good performance for prerequisite prediction task.
+
+We further explore the performance of RefD
+through a case study for the concept "deep learning" (denoted as c0). Specifically, for any concept c linked from c0 we calculate RefD(c0, c).
+Table 4 lists the RefD scores for different concepts using EQUAL weighting. The concepts on
+the left have negative RefD scores with high absolute values, which means that "deep learning" is a
+prerequisite of them. Meanwhile concepts on the
+right have high positive RefD scores, which means
+that "deep learning" requires knowing them first.
+For example, people may first need to have some
+knowledge of "machine learning", "artificial intelligence" and "algorithm" in order to learn "deep
+learning". Also we notice that concepts in the middle have RefD scores which are very close to 0,
+showing that there is no prerequisite relations between these concepts and "deep learning". However, since our RefD implementation is based on
+Wikipedia, it might not give an accurate measure
+for concepts if they have no Wikipedia articles or
+their articles are too short to provide an encyclopedic coverage, such as "discriminative model" and
+"feature engineering".
+
+1671
+
+Concept RefD Concept RefD Concept RefD
+Deep belief network -0.38 List of Nobel laureates 0.009 Machine learning 0.32
+
+Neocognitron -0.28 Neural development 0.009 Artificial neural network 0.31
+Word embedding -0.24 Watson (computer) 0.003 Artificial intelligence 0.15
+Vanishing gradient problem -0.22 Self-organization 8e-5 Algorithm 0.14
+
+Feature learning -0.17 Language model -0.004 Statistical classification 0.13
+
+Table 4: RefD scores between "deep learning" and the concepts linked from it. All scores are calculated
+by RefD(`deep learning', concept).
+
+Please note that our Wikipedia-based implementation is computationally efficient especially
+after precomputing weights and references and
+can be easily incorporated as a feature into existing supervised learning based methods.
+
+5 Related Work
+In the area of education, researchers have tried
+to find prerequisites based on the assessment data
+of students' performance (Scheines et al., 2014;
+Vuong et al., 2011). However, prerequisite relations have not been well studied in computer science, with only a few exceptions. Liu et al. (2011)
+studied learning-dependency between knowledge
+units using classification where a knowledge unit
+is a special text fragment containing concepts.
+We focus on more general prerequisite relations
+among concepts. Talukdar and Cohen (2012) applied a Maximum Entropy classifier to predict
+prerequisite structures in Wikipedia using various
+features such as a random walk with restart score
+and PageRank score. Instead of doing feature engineering, we propose to measure prerequisite relations using a single metric. Yang et al. (2015)
+proposed Concept Graph Learning to induce relations among concepts from prerequisite relations
+among courses, where the learned concept prerequisite relations are implicit and thus can not be
+evaluated. Our method is more interpretable for
+measuring prerequisite relations.
+
+Our work is closely related to the study of semantic relations. One direction is automatic lexical relation extraction. Different methods have
+been proposed to discover hypernym-hyponym relations based on lexical patterns (Hearst, 1992;
+McNamee et al., 2008; Ritter et al., 2009), distributional similarity (Kotlerman et al., 2010), semantic word embeddings (Fu et al., 2014), etc.
+Another line is entity relation extraction, which
+can be performed by distant supervision (Mintz
+et al., 2009; Riedel et al., 2010), Open IE (Fader
+et al., 2011), and neural networks (Bordes et al.,
+
+2011; Lin et al., 2015).
+
+In addition, semantic relatedness measures have
+been widely studied, where the key is to model
+the semantic representation based on a latent
+space, such as LSA (Deerwester et al., 1990),
+PLSA (Hofmann, 1999), LDA (Blei et al., 2003)
+and distributed word embeddings (Huang et al.,
+2012; Mikolov et al., 2013), or an explicit concept
+space, such as ESA (Gabrilovich and Markovitch,
+2007), SSA (Hassan and Mihalcea, 2011), and
+SaSA (Wu and Giles, 2015). Our work can also
+be served as a basis for building concept hierarchy (Wang et al., 2015) and teaching/learning assistant tools (Liang et al., 2015).
+
+6 Conclusions and Future Work
+We studied the problem of measuring prerequisite relations among concepts and proposed RefD,
+a general, light-weight, and effective metric, to
+capture the relation. We presented Wikipediabased implementations of RefD with two different
+weighting strategies. Experiments on two datasets
+including seven domains showed that our proposed metric outperformed existing baselines using supervised learning.
+
+Promising future directions would be applying
+the framework of RefD to other contexts such as
+measuring the prerequisite relations or reading orders between papers and textbooks. In addition,
+RefD can be incorporated into existing supervised
+models for a more accurate measure. Also it
+would be meaningful to explore ranking different
+prerequisites of a concept. Besides the rich link
+structure we could take advantage of more content
+information from Wikipedia and other resources
+such as textbooks and scientific papers.
+
+Acknowledgments
+We gratefully acknowledge partial support from
+the National Science Foundation, technical support from Jian Wu, and helpful comments from the
+anonymous reviewers.
+
+1672
 
 References
+John R Bergan and Patrick Jeska. 1980. An ex-amination of prerequisite relations, positive transfer among learning tasks, and variations in instruc-tion for a seriation hierarchy. Contemporary Educational Psychology, 5(3):203-215.
+David M Blei, Andrew Y Ng, and Michael I Jordan.2003. Latent dirichlet allocation. the Journal of machine Learning research, 3:993-1022.
+Antoine Bordes, Jason Weston, Ronan Collobert, andYoshua Bengio. 2011. Learning structured embeddings of knowledge bases. In Conference on Artifi-cial Intelligence, number EPFL-CONF-192344.
 
-[1] S. Bell, C. L. Zitnick, K. Bala, and R. Girshick. Inside-outside net: Detecting objects in context with skip
+William Croft and D Alan Cruse. 2004. Cognitive lin-guistics. Cambridge University Press.
+Scott C. Deerwester, Susan T Dumais, Thomas K. Lan-dauer, George W. Furnas, and Richard A. Harshman.
 
-pooling and recurrent neural networks. arXiv preprintarXiv:1512.04143, 2015. 6
-[2] J. Deng, W. Dong, R. Socher, L.-J. Li, K. Li, and L. Fei-Fei. Imagenet: A large-scale hierarchical image database.
+1990. Indexing by latent semantic analysis. JAsIs,41(6):391-407.
 
-In Computer Vision and Pattern Recognition, 2009. CVPR2009. IEEE Conference on, pages 248-255. IEEE, 2009. 1
-[3] M. Everingham, L. Van Gool, C. K. Williams, J. Winn, andA. Zisserman. The pascal visual object classes (voc) challenge. International journal of computer vision, 88(2):303-338, 2010. 1
-[4] P. F. Felzenszwalb, R. B. Girshick, and D. McAllester.Discriminatively trained deformable part models, release 4.
+Anthony Fader, Stephen Soderland, and Oren Etzioni.2011. Identifying relations for open information extraction. In Proceedings of the Conference on Em-pirical Methods in Natural Language Processing,
+pages 1535-1545. Association for ComputationalLinguistics.
 
-http://people.cs.uchicago.edu/ pff/latent-release4/. 8
-[5] R. B. Girshick. Fast R-CNN. CoRR, abs/1504.08083, 2015.4, 5, 6
+Charles J Fillmore. 2006. Frame semantics. Cognitivelinguistics: Basic readings, 34:373-400.
+Ruiji Fu, Jiang Guo, Bing Qin, Wanxiang Che, HaifengWang, and Ting Liu. 2014. Learning semantic hierarchies via word embeddings. In Proceedings of the52th Annual Meeting of the Association for Computational Linguistics: Long Papers, volume 1.
+Evgeniy Gabrilovich and Shaul Markovitch. 2007.Computing semantic relatedness using wikipediabased explicit semantic analysis. In IJCAI, vol-ume 7, pages 1606-1611.
 
-[6] K. He, X. Zhang, S. Ren, and J. Sun. Deep residual learn-ing for image recognition. arXiv preprint arXiv:1512.03385,
+Samer Hassan and Rada Mihalcea. 2011. Semanticrelatedness using salient semantic analysis. In Proceedings of the Twenty-Fifth AAAI Conference onArtificial Intelligence, AAAI 2011, San Francisco,
+California, USA, August 7-11, 2011.
+Marti A Hearst. 1992. Automatic acquisition of hy-ponyms from large text corpora. In Proceedings of
 
-2015. 2, 4, 5
-[7] S. Ioffe and C. Szegedy. Batch normalization: Acceleratingdeep network training by reducing internal covariate shift.
+the 14th conference on Computational linguistics-Volume 2, pages 539-545. Association for Computational Linguistics.
+Thomas Hofmann. 1999. Probabilistic latent semanticindexing. In Proceedings of the 22nd annual international ACM SIGIR conference on Research anddevelopment in information retrieval, pages 50-57.
+ACM.
 
-arXiv preprint arXiv:1502.03167, 2015. 2, 5
-[8] A. Krizhevsky, I. Sutskever, and G. E. Hinton. Imagenetclassification with deep convolutional neural networks. In
+Eric H Huang, Richard Socher, Christopher D Man-ning, and Andrew Y Ng. 2012. Improving word
 
-Advances in neural information processing systems, pages1097-1105, 2012. 2
-[9] M. Lin, Q. Chen, and S. Yan. Network in network. arXivpreprint arXiv:1312.4400, 2013. 5
-[10] T.-Y. Lin, M. Maire, S. Belongie, J. Hays, P. Perona, D. Ra-manan, P. Doll'ar, and C. L. Zitnick. Microsoft coco: Common objects in context. In European Conference on Com-puter Vision, pages 740-755. Springer, 2014. 1, 6
-[11] W. Liu, D. Anguelov, D. Erhan, C. Szegedy, and S. E. Reed.SSD: single shot multibox detector. CoRR, abs/1512.02325,
+representations via global context and multiple wordprototypes. In Proceedings of the 50th Annual Meeting of the Association for Computational Linguis-tics: Long Papers-Volume 1, pages 873-882. Association for Computational Linguistics.
+Lili Kotlerman, Ido Dagan, Idan Szpektor, and MaayanZhitomirsky-Geffet. 2010. Directional distributional similarity for lexical inference. Natural Lan-guage Engineering, 16(04):359-389.
 
-2015. 4, 5, 6
-[12] G. A. Miller, R. Beckwith, C. Fellbaum, D. Gross, and K. J.Miller. Introduction to wordnet: An on-line lexical database.
+Stephen Laurence and Eric Margolis. 1999. Conceptsand cognitive science. Concepts: core readings,
 
-International journal of lexicography, 3(4):235-244, 1990.6
-[13] J. Redmon. Darknet: Open source neural networks in c.
+pages 3-81.
+Chen Liang, Shuting Wang, Zhaohui Wu, KyleWilliams, Bart Pursel, Benjamin Brautigam, Sherwyn Saul, Hannah Williams, Kyle Bowen, andC. Lee Giles. 2015. Bbookx: An automatic book
+creation framework. In Proceedings of the 2015ACM Symposium on Document Engineering.
 
-http://pjreddie.com/darknet/, 2013-2016. 5
+Yankai Lin, Zhiyuan Liu, Maosong Sun, Yang Liu, andXuan Zhu. 2015. Learning entity and relation embeddings for knowledge graph completion. In Pro-ceedings of AAAI.
 
-[14] J. Redmon, S. Divvala, R. Girshick, and A. Farhadi. Youonly look once: Unified, real-time object detection. arXiv
+Jun Liu, Lu Jiang, Zhaohui Wu, Qinghua Zheng, andYanan Qian. 2011. Mining learning-dependency
 
-preprint arXiv:1506.02640, 2015. 4, 5
-[15] S. Ren, K. He, R. Girshick, and J. Sun. Faster r-cnn: To-wards real-time object detection with region proposal networks. arXiv preprint arXiv:1506.01497, 2015. 2, 3, 4, 5,6
-[16] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh,S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein,
+between knowledge units from text. The VLDBJournal, 20(3):335-345.
 
-A. C. Berg, and L. Fei-Fei. ImageNet Large Scale VisualRecognition Challenge. International Journal of Computer
-Vision (IJCV), 2015. 2
-[17] K. Simonyan and A. Zisserman. Very deep convolutionalnetworks for large-scale image recognition. arXiv preprint
+Paul McNamee, Rion Snow, Patrick Schone, and JamesMayfield. 2008. Learning named entity hyponyms
 
-arXiv:1409.1556, 2014. 2, 5
+for question answering. In IJCNLP, pages 799-804.
+Tomas Mikolov, Ilya Sutskever, Kai Chen, Greg S Cor-rado, and Jeff Dean. 2013. Distributed representations of words and phrases and their compositional-ity. In Advances in Neural Information Processing
+Systems, pages 3111-3119.
+George A Miller. 1995. Wordnet: a lexicaldatabase for english. Communications of the ACM,
 
-[18] C. Szegedy, S. Ioffe, and V. Vanhoucke. Inception-v4,inception-resnet and the impact of residual connections on
+38(11):39-41.
+Mike Mintz, Steven Bills, Rion Snow, and Dan Ju-rafsky. 2009. Distant supervision for relation extraction without labeled data. In Proceedings of theJoint Conference of the 47th Annual Meeting of the
+ACL and the 4th International Joint Conference onNatural Language Processing of the AFNLP: Volume 2-Volume 2, pages 1003-1011. Association forComputational Linguistics.
 
-learning. CoRR, abs/1602.07261, 2016. 2
-[19] C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed,D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich.
+Matthew W Ohland, Amy G Yuhasz, and Benjamin LSill. 2004. Identifying and removing a calculus prerequisite as a bottleneck in clemson's general engi-neering curriculum. Journal of Engineering Education, 93(3):253-257.
+Sebastian Riedel, Limin Yao, and Andrew McCal-lum. 2010. Modeling relations and their mentions without labeled text. In Machine Learning and
 
-Going deeper with convolutions. CoRR, abs/1409.4842,2014. 5
-[20] B. Thomee, D. A. Shamma, G. Friedland, B. Elizalde, K. Ni,D. Poland, D. Borth, and L.-J. Li. Yfcc100m: The new
+1673
 
-data in multimedia research. Communications of the ACM,59(2):64-73, 2016. 1
+Knowledge Discovery in Databases, pages 148-163.Springer.
+Alan Ritter, Stephen Soderland, and Oren Etzioni.2009. What is this, anyway: Automatic hypernym
 
-9
+discovery. In AAAI Spring Symposium: Learning byReading and Learning to Read, pages 88-93.
+
+Richard Scheines, Elizabeth Silver, and Ilya Goldin.2014. Discovering prerequisite relationships among
+
+knowledge components. In Proceedings of Educa-tional Data Mining, pages 355-356.
+
+Partha Pratim Talukdar and William W Cohen. 2012.Crowdsourced comprehension: predicting prerequisite structure in wikipedia. In Proceedings of theSeventh Workshop on Building Educational Applications Using NLP, pages 307-315. Association forComputational Linguistics.
+
+Annalies Vuong, Tristan Nixon, and Brendon Towle.2011. A method for finding prerequisites within
+
+a curriculum. In Proceedings of Educational DataMining, pages 211-216.
+
+Shuting Wang, Chen Liang, Zhaohui Wu, KyleWilliams, Bart Pursel, Benjamin Brautigam, Sherwyn Saul, Hannah Williams, Kyle Bowen, andC. Lee Giles. 2015. Concept hierarchy extraction
+from textbooks. In Proceedings of the 2015 ACMSymposium on Document Engineering.
+
+Zhaohui Wu and C. Lee Giles. 2015. Sense-aware se-mantic analysis: A multi-prototypeword representation model usingwikipedia. In Proceedings ofthe 29th AAAI Conference on Artificial Intelligence,
+pages 2188-2194.
+Yiming Yang, Hanxiao Liu, Jaime G. Carbonell, andWanli Ma. 2015. Concept graph learning from educational data. In Proceedings of the Eighth ACMInternational Conference on Web Search and Data
+Mining, WSDM 2015, Shanghai, China, February2-6, 2015, pages 159-168.
+
+1674

@@ -38,7 +38,14 @@
             <div class="process_button">
                <input type="submit" value='Upload'id="btnUpload" class = "btn btn-primary" style="width: 100%;"/>
             </div>
-         </form>
+        </form>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <p>{{ message }}</p>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
       </div>
    </body>
    <script>

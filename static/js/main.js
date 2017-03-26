@@ -42,6 +42,7 @@ function resetNetwork(start) {
     // var startID = getNeutralId(start);
     var startID = Object.keys(start)[0];
     console.log("First value is " + startID);
+    debugger;
     startpages = [startID]; // Register the page as an origin node
     tracenodes = [];
     traceedges = [];
@@ -60,6 +61,7 @@ function resetNetwork(start) {
     //Put the data in the container
     data = {nodes: nodes, edges: edges};
     network.setData(data);
+    document.getElementById("container").setAttribute("name", startID);
 }
 
 
