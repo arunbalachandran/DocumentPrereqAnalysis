@@ -39,11 +39,12 @@ function makeNetwork() {
 // Reset the network to be new each time.
 function resetNetwork(start) {
     if (!initialized) makeNetwork();
+    console.log("Creation of the first node");
     // var startID = getNeutralId(start);
+    debugger;
     var startID = Object.keys(start)[0];
     console.log("First value is " + startID);
-    debugger;
-    startpages = [startID]; // Register the page as an origin node
+    startpages.push(startID); // Register the page as an origin node
     tracenodes = [];
     traceedges = [];
 
@@ -72,6 +73,7 @@ function addStart(start) {
     // probably uses the needsreset from the global space
     // console.log("Index value at addStart is " + index);
     // If the first time
+    debugger;
     if (needsreset) {
         // Delete everything only for the first call to addStart by tracking needsreset
         resetNetwork(start);
@@ -81,11 +83,12 @@ function addStart(start) {
     // so far haven't tested this yet
     else {
         console.log("Add start but doesn't need reset");
-        var startID = getNeutralId(start);
+        // var startID = getNeutralId(start);
+        var startID = Object.keys(start)[0];
+        console.log("Another value is " + startID);
         startpages.push(startID);
         nodes.add([
-          {id: startID, label: wordwrap(decodeURIComponent(start), 20), value: 2, level: 0,
-           color: getColor(0), x: 0, y: 0, parent: startID}   // Parent is self
+          {id: startID, label: startID, value: 2, level: 0, color: getColor(0), x: 0, y: 0, parent: startID, node_parent_marker: start[startID]}
         ]);
     }
 }
@@ -113,7 +116,21 @@ function resetNetworkFromInput(graphNodes) {
     }
     // code I added
     // get rid of the commas and whatever
-    addStart(inputs);
+    // debugger;
+    // var input_nodes = Object.keys(inputs);
+    debugger;
+    for (var key in inputs) {
+        if (jQuery.isEmptyObject(inputs[key])) {
+            var temp = {};
+            temp[key] = {};
+            addStart(temp);    // empty object case
+        }
+        else {
+            var temp = {};
+            temp[key] = inputs[key];
+            addStart(inputs);  // call for each independent node
+        }
+    }
     // for (var i = 0; i < inputs.length; i++) {
     //     getPageName(encodeURI(inputs[i]), addStart);
     // }

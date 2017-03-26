@@ -32,6 +32,7 @@ def showIndex():
             if len(nodes) == 0:
                 flash("Sorry but the system couldn't find any concepts in the document.")
                 return redirect(request.url)
+            print ('nodes are ', nodes)
             return render_template('graph_page.html', nodes=nodes)
 
 # api request

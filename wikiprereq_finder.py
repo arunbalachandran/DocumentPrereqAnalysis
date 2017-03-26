@@ -54,7 +54,8 @@ def get_concepts(filename):
             concept_prereq[concept] = {}
         sys.stdout.write('\n'+str(concept_prereq)+'\n')
         # simplifying assumption that the links that you have in your page contain the thing that links to you
-        recursive_concept_fill(concept_prereq, depth=0, all_concepts=[i for i in concept_prereq])  # depth limited recursive concept fetch
+        # for concept in concept_prereq:
+        recursive_concept_fill(concept_prereq, depth=0, all_concepts=concepts)# depth limited recursive concept fetch
         return concept_prereq
     return concepts  # if none exist
 
@@ -64,13 +65,13 @@ def recursive_concept_fill(concept_dict, depth, all_concepts):
     for concept in concept_dict:
         # max concept is the prerequisite for that concept
         print ('concept is ', concept, 'with dict', concept_dict)
-        if (title_links.get(concept) == None):
-            return
-        else:
-            max_concept = max([ref_distance(concept, article) for article in title_links[concept] if title_links.get(article)], key=lambda x: x[0])
-            if (not max_concept or max_concept[1] in str(all_concepts)):
-                return
-            else:
-                all_concepts.append(max_concept[1])   # unique concept that doesn't exist anywhere in the dicitonary
-                concept_dict[concept][max_concept[1]] = {}
-                recursive_concept_fill(concept_dict[concept], depth=depth+1, all_concepts=all_concepts)
+        if (title_links.get(concept) != None):
+            # super rare case
+            list_articles = [ref_distance(concept, article) for article in title_links[concept] if title_links.get(article)]
+            if list_articles != []:
+                max_concept = max(list_articles , key=lambda x: x[0])
+                # need to verify the pruning logic
+                if (max_concept and max_concept[1] not in str(all_concepts)):
+                    all_concepts.append(max_concept[1])   # unique concept that doesn't exist anywhere in the dicitonary
+                    concept_dict[concept][max_concept[1]] = {}
+                    recursive_concept_fill(concept_dict[concept], depth=depth+1, all_concepts=all_concepts)

@@ -73,12 +73,14 @@ function expandNode(page) {
 function getTraceBackNodes(node) {
     var finished = false;
     var path = [];
+
+    // debugger;
     while (! finished) { //Add parents of nodes until we reach the start
         path.push(node);
-        // if (startpages.indexOf(node) !== -1) { //Check if we've reached the end
+        if (startpages.indexOf(node) !== -1) { //Check if we've reached the end
         // My amazing condition
-        console.log("Current parent of node ", nodes.get(node).label, " is ", nodes.get(node).parent);
-        if (startpages[0] === nodes.get(node).parent) {
+            console.log("Current parent of node ", nodes.get(node).label, " is ", nodes.get(node).parent);
+        // if (startpages[0] === nodes.get(node).parent) {
             finished = true;
         }
         console.log("Now get the parent ", nodes.get(node).parent);
