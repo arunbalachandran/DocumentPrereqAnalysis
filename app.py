@@ -42,7 +42,7 @@ def node_clicked():
         data = request.get_json()
         clickedNode = data["clickdata"]
         print ("Clicked node was " + str(clickedNode))
-        cmd = "python scholar.py -A '" + clickedNode + "'  -c 100 --after=1970"
+        cmd = "python scholar.py -A '" + clickedNode + "'"
         proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
         output = proc.communicate()[0]
         sys.stdout.write('\noutput is ' + str(output) + '\n ')

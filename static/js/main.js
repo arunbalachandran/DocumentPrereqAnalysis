@@ -8,6 +8,9 @@ var needsreset = true;
 var container = document.getElementById('container');
 //Global options
 var options = {
+    autoResize: true,
+    height: '100%',
+    width: '100%',
     nodes: {
         shape: 'dot',
         scaling: { min: 20,max: 30,

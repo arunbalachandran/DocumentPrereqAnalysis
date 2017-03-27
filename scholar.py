@@ -392,8 +392,8 @@ class ScholarArticleParser(object):
 
         # This parses any global, non-itemized attributes from the page.
         self._parse_globals()
-        # print "This is HTML here" + html
-        print (str(self.soup.findAll(ScholarArticleParser._tag_results_checker)).replace('>, <', '> <')[1:].encode(system_encoding, errors='replace'))
+        print (str(html).encode(system_encoding, errors='replace')[2:-1])
+        # print (str(self.soup.findAll(ScholarArticleParser._tag_results_checker)).replace('>, <', '> <'))
         return
         # Now parse out listed articles:
         for div in self.soup.findAll(ScholarArticleParser._tag_results_checker):
