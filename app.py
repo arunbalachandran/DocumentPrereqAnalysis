@@ -3,10 +3,11 @@ from werkzeug.utils import secure_filename
 import os, json, subprocess, shlex, sys
 import wikiprereq_finder
 import sys
-
+# from pathlib import Path
+# path_var = Path('.')
 app = Flask(__name__)
 app.secret_key = 'This is a very very top secret key.'
-app.config['UPLOAD_FOLDER'] = 'docs'
+# app.config['UPLOAD_FOLDER'] = '.'
 ALLOWED_EXTENSIONS = set(['pdf'])
 
 def allowed_file(filename):
@@ -26,14 +27,23 @@ def showIndex():
             return redirect(request.url)
         if f and allowed_file(f.filename):
             filename = secure_filename(f.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            f.save(filepath)
-            nodes = wikiprereq_finder.get_concepts(filepath)
-            if len(nodes) == 0:
-                flash("Sorry but the system couldn't find any concepts in the document.")
-                return redirect(request.url)
-            print ('nodes are ', nodes)
-            return render_template('graph_page.html', nodes=nodes)
+            # upload_path = path_var/app.config['UPLOAD_FOLDER']/filename
+            # upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            upload_path = filename
+            # if (upload_path.exists()):
+            if (1):
+                # resolved_path = upload_path.resolve()
+                # print ('resolved_path is', resolved_path)
+                # with upload_path.open(mode='wb') as fp:
+                #     f.save(fp)
+                f.save(upload_path)
+                nodes = wikiprereq_finder.get_concepts(upload_path)
+                # nodes = wikiprereq_finder.get_concepts(upload_path.resolve())
+                if len(nodes) == 0:
+                    flash("Sorry but the system couldn't find any concepts in the document.")
+                    return redirect(request.url)
+                print ('nodes are ', nodes)
+                return render_template('graph_page.html', nodes=nodes)
 
 # api request
 @app.route('/make_callout', methods=['POST'])

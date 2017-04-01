@@ -123,16 +123,16 @@ function resetNetworkFromInput(graphNodes) {
     // var input_nodes = Object.keys(inputs);
     debugger;
     for (var key in inputs) {
-        if (jQuery.isEmptyObject(inputs[key])) {
-            var temp = {};
-            temp[key] = {};
-            addStart(temp);    // empty object case
-        }
-        else {
+        // if (jQuery.isEmptyObject(inputs[key])) {
+        //     var temp = {};
+        //     temp[key] = {};
+        //     addStart(temp);    // empty object case
+        // }
+        // else {
             var temp = {};
             temp[key] = inputs[key];
-            addStart(inputs);  // call for each independent node
-        }
+            addStart(temp);  // call for each independent node
+        // }
     }
     // for (var i = 0; i < inputs.length; i++) {
     //     getPageName(encodeURI(inputs[i]), addStart);

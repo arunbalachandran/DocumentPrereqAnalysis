@@ -24,6 +24,7 @@ function mobileTraceEvent (params) { // Trace back a node (with event handler)
 
 function openPageEvent (params) {
     if (params.nodes.length) {
+        console.log("A double click occured on node ", params.nodes[0]);
         var nodeid = params.nodes[0];
         var page = encodeURIComponent(unwrap(nodes.get(nodeid).label));
         var url = "http://en.wikipedia.org/wiki/"+page;

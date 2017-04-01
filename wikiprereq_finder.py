@@ -42,12 +42,18 @@ def ref_distance(conceptA, conceptB):
 
 def get_concepts(filename):
     # make this platform independent
-    cmd = 'gswin64c -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + filename + ' -c quit > output.txt'
-    os.system(cmd)
-    with open('output.txt') as fp:
-        keywords = fp.read().split()
+    print ('file name passed was', filename)
+    cmd = 'gswin64c -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + str(filename) + ' -c quit'
+    print ('command being executed', cmd)
+    proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
+    pdftext = str(proc.communicate()[0]).lower()
+    print ('keywords are', pdftext)
+    # os.system(cmd)
+    # with open('output.txt') as fp:
+    #    keywords = fp.read().split()
     # future scope -> check bigrams and trigrams and also improve simple word checking using search library
-    concepts = [concept for concept in set(keywords) if title_links.get(concept)]
+    # how do I reduce the number of concepts? or maybe implement a hide functionality for nodes
+    concepts = [concept for concept in title_links if concept.lower() in pdftext or ' '.join(concept.split('_')).lower() in pdftext]
     concept_prereq = {}
     if (concepts != []):
         for concept in concepts:    # find prerequisites for each concept
