@@ -47,7 +47,7 @@ def get_query_html(query_txt):
         for link in list_links:
             if link.get('href'):
                 if 'http' not in link['href']:
-                    print ('link is ', str(link))
+                    # print ('link is ', str(link))
                     # input()
                     if 'Cited' not in link.text:
                         link.decompose()
@@ -60,7 +60,8 @@ def get_query_html(query_txt):
         try:
             auth.a['href'] = '#'
         except:
-            print ('couldnt assign href to ', auth.a)
+            pass
+            # print ('couldnt assign href to ', auth.a)
 
     return str(soup)
 

@@ -1,6 +1,7 @@
 import json
 import subprocess, shlex
 import sys
+import os
 
 with open('title_links.json') as title_link_dict:
     title_links = json.load(title_link_dict)
@@ -45,13 +46,15 @@ def recursive_search(dictionary, search_key):
             return True
     return False
 
-def get_concepts(filename):
+def get_concepts(filepath):
     # make this platform independent
-    print ('file name passed was', filename)
-    cmd = 'gswin64c -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + str(filename) + ' -c quit'
-    print ('command being executed', cmd)
-    proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
-    pdftext = str(proc.communicate()[0]).lower()
+    os.chdir(os.path.join(os.path.abspath(sys.path[0]), 'docs'))
+    cmd = 'gswin64c -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + filepath + ' -c quit'
+    proc = subprocess.Popen(shlex.split(cmd, posix=False), stdout=subprocess.PIPE)  # don't need the posix option if the filesystem is not windows
+    pdftext, stderr = proc.communicate()
+    pdftext = str(pdftext).lower()
+    print ('error is ', str(stderr))
+    print ('keywords are ', str(pdftext))
     # print ('keywords are', pdftext)
     # os.system(cmd)
     # with open('output.txt') as fp:

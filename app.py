@@ -4,11 +4,12 @@ import os, json, subprocess, shlex, sys
 import wikiprereq_finder
 import sys
 import scholar_user
+import os
 # from pathlib import Path
 # path_var = Path('.')
 app = Flask(__name__)
 app.secret_key = 'This is a very very top secret key.'
-# app.config['UPLOAD_FOLDER'] = '.'
+app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'docs')
 ALLOWED_EXTENSIONS = set(['pdf'])
 
 def allowed_file(filename):
@@ -26,25 +27,16 @@ def showIndex():
         if f.filename == '' or not allowed_file(f.filename):
             flash("Invalid file or none selected! Please select a file or check if the file is a 'pdf' before pressing the submit button.")
             return redirect(request.url)
-        if f and allowed_file(f.filename):
+        else:
             filename = secure_filename(f.filename)
-            # upload_path = path_var/app.config['UPLOAD_FOLDER']/filename
-            # upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            upload_path = filename
-            # if (upload_path.exists()):
-            if (1):
-                # resolved_path = upload_path.resolve()
-                # print ('resolved_path is', resolved_path)
-                # with upload_path.open(mode='wb') as fp:
-                #     f.save(fp)
-                f.save(upload_path)
-                nodes = wikiprereq_finder.get_concepts(upload_path)
-                # nodes = wikiprereq_finder.get_concepts(upload_path.resolve())
-                if len(nodes) == 0:
-                    flash("Sorry but the system couldn't find any concepts in the document.")
-                    return redirect(request.url)
-                print ('nodes are ', nodes)
-                return render_template('graph_page.html', nodes=nodes)
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            print ('save should be successful')
+            nodes = wikiprereq_finder.get_concepts(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            if len(nodes) == 0:
+                flash("Sorry but the system couldn't find any concepts in the document.")
+                return redirect(request.url)
+            print ('nodes are ', nodes)
+            return render_template('graph_page.html', nodes=nodes)
 
 # api request
 @app.route('/make_callout', methods=['POST'])

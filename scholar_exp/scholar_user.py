@@ -59,11 +59,4 @@ def get_query_html(query_txt):
     for auth in list_auth_on_scholar:
         try:
             auth.a['href'] = '#'
-        except:
-            print ('couldnt assign href to ', auth.a)
-
     return str(soup)
-
-# print ('Does div class still exist', soup.findAll('div', {'class': 'gs_rs'}))
-# with open('test123.html', 'w') as fp:
-#     fp.write(str(soup))
