@@ -1,8 +1,6 @@
-from flask import Flask, request, render_template, json, redirect, jsonify
 import json
 import subprocess, shlex
 import sys
-import os
 
 with open('title_links.json') as title_link_dict:
     title_links = json.load(title_link_dict)
@@ -40,6 +38,13 @@ def ref_distance(conceptA, conceptB):
             print ("Cannot print concept")
     return (ref_dist, conceptB)
 
+# Search whether the node exists in other nodes as subset
+def recursive_search(dictionary, search_key):
+    for key in dictionary:
+        if key != search_key and "'"+search_key+"'" in str(dictionary[key]):  # don't search for yourself
+            return True
+    return False
+
 def get_concepts(filename):
     # make this platform independent
     print ('file name passed was', filename)
@@ -47,13 +52,22 @@ def get_concepts(filename):
     print ('command being executed', cmd)
     proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
     pdftext = str(proc.communicate()[0]).lower()
-    print ('keywords are', pdftext)
+    # print ('keywords are', pdftext)
     # os.system(cmd)
     # with open('output.txt') as fp:
     #    keywords = fp.read().split()
     # future scope -> check bigrams and trigrams and also improve simple word checking using search library
     # how do I reduce the number of concepts? or maybe implement a hide functionality for nodes
-    concepts = [concept for concept in title_links if concept.lower() in pdftext or ' '.join(concept.split('_')).lower() in pdftext]
+    concepts_with_count = []
+    for concept in title_links:
+        if concept.lower() in pdftext:
+            concepts_with_count.append((concept, pdftext.count(concept.lower())))
+        elif concept.replace('_', ' ').lower() in pdftext:
+            concepts_with_count.append((concept, pdftext.count(concept.replace('_', ' ').lower())))
+    # concepts = [concept for concept in title_links if concept.lower() in pdftext or ' '.join(concept.split('_')).lower() in pdftext]
+    concepts = [concept[0] for concept in concepts_with_count if concept[1] > 2]    # keep this count variable for experiment
+    # remove unnecessary concepts
+    concepts = [concept for concept in concepts if concept not in ['(', ')', '{', '}', '[', ']']]
     concept_prereq = {}
     if (concepts != []):
         for concept in concepts:    # find prerequisites for each concept
@@ -61,7 +75,15 @@ def get_concepts(filename):
         sys.stdout.write('\n'+str(concept_prereq)+'\n')
         # simplifying assumption that the links that you have in your page contain the thing that links to you
         # for concept in concept_prereq:
-        recursive_concept_fill(concept_prereq, depth=0, all_concepts=concepts)# depth limited recursive concept fetch
+        recursive_concept_fill(concept_prereq, depth=0, all_concepts=concepts) # depth limited recursive concept fetch
+        deletion_list = []
+        for search_key in concept_prereq:
+            if recursive_search(concept_prereq, search_key):
+                deletion_list.append(search_key)
+        print ('deletion list is', deletion_list)
+        # input()
+        for key in deletion_list:
+            del(concept_prereq[key])
         return concept_prereq
     return concepts  # if none exist
 
@@ -77,7 +99,8 @@ def recursive_concept_fill(concept_dict, depth, all_concepts):
             if list_articles != []:
                 max_concept = max(list_articles , key=lambda x: x[0])
                 # need to verify the pruning logic
-                if (max_concept and max_concept[1] not in str(all_concepts)):
+                # if (max_concept and max_concept[1] not in str(all_concepts)):
+                if (max_concept):
                     all_concepts.append(max_concept[1])   # unique concept that doesn't exist anywhere in the dicitonary
                     concept_dict[concept][max_concept[1]] = {}
                     recursive_concept_fill(concept_dict[concept], depth=depth+1, all_concepts=all_concepts)

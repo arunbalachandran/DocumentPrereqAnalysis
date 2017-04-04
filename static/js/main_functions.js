@@ -30,6 +30,7 @@ function expandNodeCallback(page) {
     // Where new nodes should be spawned
     var nodeSpawn = getSpawnPosition(page);
     //Create node objects
+    // debugger;
     for (var key in subpages) {
         console.log("Loop ran");
         console.log("Key is ", key);
@@ -38,8 +39,9 @@ function expandNodeCallback(page) {
         // var subpage = Object.keys(key)[0];
         // var subpageID = getNeutralId(subpage);
         var subpageID = subpage;
+        // debugger;
         if (nodes.getIds().indexOf(subpageID) == -1) {        //Don't add if node exists
-            subnodes.push({id: subpageID, label: subpage, value: 1, level: level, color: getColor(level), parent: page,
+            subnodes.push({id: subpageID, label: subpage.replace('_', ' '), value: 1, level: level, color: getColor(level), parent: page,
                            node_parent_marker: nodes.get(page)['node_parent_marker'][key], x: nodeSpawn[0], y: nodeSpawn[1]});  //Add node
             // subnodes.push({id: subpageID, label: wordwrap(decodeURIComponent(subpage),15), value: 1,
             //                level: level, color: getColor(level), parent: page,

@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 import os, json, subprocess, shlex, sys
 import wikiprereq_finder
 import sys
+import scholar_user
 # from pathlib import Path
 # path_var = Path('.')
 app = Flask(__name__)
@@ -52,10 +53,7 @@ def node_clicked():
         data = request.get_json()
         clickedNode = data["clickdata"]
         print ("Clicked node was " + str(clickedNode))
-        cmd = "python scholar.py -A '" + clickedNode + "'"
-        proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
-        output = proc.communicate()[0]
-        sys.stdout.write('\noutput is ' + str(output) + '\n ')
+        output = scholar_user.get_query_html(str(clickedNode))
         return json.dumps({"data": str(output)})
 
 if __name__ == '__main__':

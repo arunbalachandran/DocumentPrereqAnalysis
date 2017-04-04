@@ -44,7 +44,7 @@ function resetNetwork(start) {
     if (!initialized) makeNetwork();
     console.log("Creation of the first node");
     // var startID = getNeutralId(start);
-    debugger;
+    // debugger;
     var startID = Object.keys(start)[0];
     console.log("First value is " + startID);
     startpages.push(startID); // Register the page as an origin node
@@ -76,7 +76,7 @@ function addStart(start) {
     // probably uses the needsreset from the global space
     // console.log("Index value at addStart is " + index);
     // If the first time
-    debugger;
+    // debugger;
     if (needsreset) {
         // Delete everything only for the first call to addStart by tracking needsreset
         resetNetwork(start);
@@ -91,7 +91,7 @@ function addStart(start) {
         console.log("Another value is " + startID);
         startpages.push(startID);
         nodes.add([
-          {id: startID, label: startID, value: 2, level: 0, color: getColor(0), x: 0, y: 0, parent: startID, node_parent_marker: start[startID]}
+          {id: startID, label: startID.replace("_", " "), value: 2, level: 0, color: getColor(0), x: 0, y: 0, parent: startID, node_parent_marker: start[startID]}
         ]);
     }
 }
@@ -121,7 +121,7 @@ function resetNetworkFromInput(graphNodes) {
     // get rid of the commas and whatever
     // debugger;
     // var input_nodes = Object.keys(inputs);
-    debugger;
+    // debugger;
     for (var key in inputs) {
         // if (jQuery.isEmptyObject(inputs[key])) {
         //     var temp = {};
@@ -129,9 +129,9 @@ function resetNetworkFromInput(graphNodes) {
         //     addStart(temp);    // empty object case
         // }
         // else {
-            var temp = {};
-            temp[key] = inputs[key];
-            addStart(temp);  // call for each independent node
+        var temp = {};
+        temp[key] = inputs[key];
+        addStart(temp);  // call for each independent node
         // }
     }
     // for (var i = 0; i < inputs.length; i++) {

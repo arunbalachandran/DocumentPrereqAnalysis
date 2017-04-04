@@ -166,6 +166,7 @@ import os
 import re
 import sys
 import warnings
+system_encoding = sys.stdout.encoding
 
 try:
     # Try importing for Python 3
@@ -391,7 +392,9 @@ class ScholarArticleParser(object):
 
         # This parses any global, non-itemized attributes from the page.
         self._parse_globals()
-
+        print (str(html).encode(system_encoding, errors='replace')[2:-1])
+        # print (str(self.soup.findAll(ScholarArticleParser._tag_results_checker)).replace('>, <', '> <'))
+        return
         # Now parse out listed articles:
         for div in self.soup.findAll(ScholarArticleParser._tag_results_checker):
             self._parse_article(div)
@@ -536,6 +539,9 @@ class ScholarArticleParser120201(ScholarArticleParser):
     Google recently.
     """
     def _parse_article(self, div):
+
+        # print "This is added by me in ScholarArticleParser120201 ===== " + str(div)
+
         self.article = ScholarArticle()
 
         for tag in div:
@@ -562,6 +568,7 @@ class ScholarArticleParser120726(ScholarArticleParser):
     Google made 07/26/12.
     """
     def _parse_article(self, div):
+        # print "This is added by me in ScholarArticleParser120726 ===== " + str(div)
         self.article = ScholarArticle()
 
         for tag in div:
@@ -1024,8 +1031,7 @@ class ScholarQuerier(object):
         if html is None:
             return
 
-        return html
-        # self.parse(html)
+        self.parse(html)
 
     def get_citation_data(self, article):
         """
@@ -1130,12 +1136,8 @@ def txt(querier, with_globals):
             print
 
     articles = querier.articles
-    articles_text = []
     for art in articles:
-        # print(encode(art.as_txt()) + '\n')
-        articles_text.append(encode(art.as_txt()) + '\n')
-        # return (encode(art.as_txt()) + '\n')
-    return articles_text
+        print(encode(art.as_txt()) + '\n')
 
 def csv(querier, header=False, sep='|'):
     articles = querier.articles

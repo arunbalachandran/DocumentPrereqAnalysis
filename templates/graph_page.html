@@ -18,8 +18,6 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/modals.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/progress.css') }}">
 
-    <script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script>  // use this in the below binding script
       var graphNodes = {{ nodes|tojson }};
       function LoadGoogle()
@@ -27,7 +25,6 @@
           if (typeof google != 'undefined' && google && google.load && "temp" != document.getElementById("container").getAttribute("name")) {
               console.log('Finished loading google api!');
               var clickedNode = document.getElementById('container').getAttribute('name');
-              // debugger;
               var element = google.search.cse.element.getElement('search-box');
               element.prefillQuery(clickedNode);
               console.log("Filled element with value", clickedNode);
@@ -41,7 +38,6 @@
                     console.log("Success case!");
                     var parsedData = JSON.parse(data);
                     console.log("No problems here");
-                    console.log("Debug problem with parsing html");
                     $("#rahul").html(parsedData['data']);
                 },
                 error: function (data) {
@@ -50,10 +46,12 @@
               });
           }
           else {  // Retry later...
-              setTimeout(LoadGoogle, 10);
+              setTimeout(LoadGoogle, 500);
           }
       }
     </script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
   <body class="htmlNoPages">
     <div class="container-fluid">
