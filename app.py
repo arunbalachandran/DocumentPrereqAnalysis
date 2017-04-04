@@ -36,7 +36,10 @@ def showIndex():
                 flash("Sorry but the system couldn't find any concepts in the document.")
                 return redirect(request.url)
             print ('nodes are ', nodes)
-            return render_template('graph_page.html', nodes=nodes)
+            # add a central node
+            add_central_node = {}
+            add_central_node[filename] = nodes
+            return render_template('graph_page.html', nodes=add_central_node)
 
 # api request
 @app.route('/make_callout', methods=['POST'])
@@ -45,8 +48,12 @@ def node_clicked():
         data = request.get_json()
         clickedNode = data["clickdata"]
         print ("Clicked node was " + str(clickedNode))
-        output = scholar_user.get_query_html(str(clickedNode))
-        return json.dumps({"data": str(output)})
+        # check if clicked node is not central node
+        if (clickedNode not in os.listdir(app.config['UPLOAD_FOLDER'])):
+            output = scholar_user.get_query_html(str(clickedNode))
+            return json.dumps({"data": str(output)})
+        else:
+            return json.dumps({'error': True}), 200, {'ContentType': 'application/json'}
 
 if __name__ == '__main__':
     app.run()
