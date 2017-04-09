@@ -60,7 +60,7 @@
     /*position: absolute;*/
     position: static;
     /*left: 0%;*/
-    height: 300px;  /* added additionally */
+    /*height: 300px;*/  /* added additionally */
     border: 1px solid rgb(0, 0, 0);
     /*top: 74.22%;*/
     /*width: 76.66%;*/
@@ -70,7 +70,7 @@
     overflow-y: scroll;
   }
   .gwd-div-14zh {
-    height: 300px;  /* added additionally */
+    /*height: 300px;*/  /* added additionally */
     /*position: absolute;*/
     position: static;
     /*width: 23.13%;*/

@@ -22,11 +22,25 @@ def get_query_html(query_txt):
     # get rid of the links which were not required anyway
     list_divs = soup.findAll("div", {"class": "gs_fl"})
     list_auth = soup.findAll('div', {'class': 'gs_rs'})
-
+    soup.head.findAll('title')[0].decompose()    # get rid of title
     # get rid of scripts
     for script in soup.head.findAll('script'):
         try:
             script.decompose()
+        except:
+            pass
+
+    # get rid of meta elements in head
+    for meta in soup.head.findAll('meta'):
+        try:
+            meta.decompose()
+        except:
+            pass
+
+    # get rid of style elements in head
+    for style in soup.head.findAll('meta'):
+        try:
+            style.decompose()
         except:
             pass
 
@@ -35,6 +49,14 @@ def get_query_html(query_txt):
             script.decompose()
         except:
             pass
+
+    # getting rid of style elements inside body (invalid html supposedly)
+    for style in soup.body.findAll('style'):
+        try:
+            style.decompose()
+        except:
+            pass
+
     # get rid of breaks
     print ('getting rid of breaks')
     for div in list_auth:
@@ -63,6 +85,25 @@ def get_query_html(query_txt):
             pass
             # print ('couldnt assign href to ', auth.a)
 
+    # this may or may not work - decompose the main gs_top div
+    soup.find(id="gs_top").unwrap()
+    soup.find(id="gs_md_s").decompose()
+    soup.find(id="gs_md_w").decompose()
+    soup.find(id="gs_ab_anchor").decompose()
+    soup.find(id="gs_rdy").decompose()
+    soup.find(id="gs_bdy").unwrap()
+    soup.find(id="gs_ccl").unwrap()
+    soup.find(id="gs_ccl_top").decompose()
+    soup.find(id="gs_ccl_results").unwrap()
+
+    # make the list of floating pdf link divs float to the right of their respective links
+    list_pdf_divs = soup.findAll("div", {"class": "gs_ggs"})
+    for div in list_pdf_divs:
+        div['style'] = 'float: right;'
+    # get rid of the saving message
+    list_save_divs = soup.findAll("span", {"class": "gs_nph"})
+    for div in list_save_divs:
+        div.decompose()
     return str(soup)
 
 # print ('Does div class still exist', soup.findAll('div', {'class': 'gs_rs'}))
