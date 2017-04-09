@@ -21,7 +21,7 @@ function expandNodeCallback(page) {
     var subpages = node['node_parent_marker'];   // list of child nodes
     console.log("THe current level for node that was clicked " + node.level);
     console.log("THe current node that was clicked ", node.label);
-    document.getElementById("container").setAttribute("name", node.label);
+    document.getElementById("namecontainer").setAttribute("name", node.label);
     LoadGoogle();
     console.log("Subpages are ", subpages);
     // Add all children to network

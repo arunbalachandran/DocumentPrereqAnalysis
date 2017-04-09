@@ -5,7 +5,7 @@ var startpages = [];
 // Tracks whether the network needs to be reset. Used to prevent deleting nodes
 // when multiple nodes need to be created, because AJAX requests are async.
 var needsreset = true;
-var container = document.getElementById('container');
+var container = document.getElementById('namecontainer');
 //Global options
 var options = {
     autoResize: true,
@@ -65,7 +65,7 @@ function resetNetwork(start) {
     //Put the data in the container
     data = {nodes: nodes, edges: edges};
     network.setData(data);
-    document.getElementById("container").setAttribute("name", startID);
+    document.getElementById("namecontainer").setAttribute("name", startID);
 }
 
 

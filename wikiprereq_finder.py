@@ -53,8 +53,8 @@ def get_concepts(filepath):
     proc = subprocess.Popen(shlex.split(cmd, posix=False), stdout=subprocess.PIPE)  # don't need the posix option if the filesystem is not windows
     pdftext, stderr = proc.communicate()
     pdftext = str(pdftext).lower()
-    print ('error is ', str(stderr))
-    print ('keywords are ', str(pdftext))
+    # print ('error is ', str(stderr))
+    # print ('keywords are ', str(pdftext))
     # print ('keywords are', pdftext)
     # os.system(cmd)
     # with open('output.txt') as fp:
@@ -83,7 +83,7 @@ def get_concepts(filepath):
         for search_key in concept_prereq:
             if recursive_search(concept_prereq, search_key):
                 deletion_list.append(search_key)
-        print ('deletion list is', deletion_list)
+        # print ('deletion list is', deletion_list)
         # input()
         for key in deletion_list:
             del(concept_prereq[key])

@@ -32,11 +32,11 @@
     background-color: rgb(248, 245, 245);
 
   }
+  /* removed the top attribute*/
   .gwd-div-48j0 {
-    position: absolute;
+    position: initial;
     left: 0%;
     border: 1px solid rgb(0, 0, 0);
-    top: 13.45%;
     width: 76.66%;
     height: 60.09%;
     background-image: none;
@@ -44,38 +44,43 @@
     overflow-y: scroll;
   }
   .gwd-div-zptc {
-    position: absolute;
-    width: 23.13%;
-    left: 76.87%;
+    position: static;
+    /*position: absolute;*/
+    /*width: 23.13%;*/
+    /*left: 76.87%;
     top: 13.45%;
-    height: 60.09%;
+    height: 60.09%;*/
     border-style: solid;
     border-width: 1px;
     background-image: none;
-    background-color: rgb(243, 238, 238);
+    /*background-color: rgb(243, 238, 238);*/
     overflow-y: scroll;
   }
   .gwd-div-sqmu {
-    position: absolute;
-    left: 0%;
+    /*position: absolute;*/
+    position: static;
+    /*left: 0%;*/
+    height: 300px;  /* added additionally */
     border: 1px solid rgb(0, 0, 0);
-    top: 74.22%;
-    width: 76.66%;
-    height: 25.11%;
-    background-image: none;
-    background-color: rgb(248, 244, 244);
+    /*top: 74.22%;*/
+    /*width: 76.66%;*/
+    /*height: 25.11%;*/
+    /*background-image: none;*/
+    /*background-color: rgb(248, 244, 244);*/
     overflow-y: scroll;
   }
   .gwd-div-14zh {
-    position: absolute;
-    width: 23.13%;
-    left: 76.87%;
-    top: 74.22%;
+    height: 300px;  /* added additionally */
+    /*position: absolute;*/
+    position: static;
+    /*width: 23.13%;*/
+    /*left: 76.87%;*/
+    /*top: 74.22%;*/
     border-style: solid;
     border-width: 1px;
-    height: 25.11%;
-    background-image: none;
-    background-color: rgb(241, 237, 237);
+    /*height: 25.11%;*/
+    /*background-image: none;*/
+    /*background-color: rgb(241, 237, 237);*/
     overflow-y: scroll;
   }
   .gwd-p-jvrs {

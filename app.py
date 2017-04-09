@@ -51,6 +51,7 @@ def node_clicked():
         # check if clicked node is not central node
         if (clickedNode not in os.listdir(app.config['UPLOAD_FOLDER'])):
             output = scholar_user.get_query_html(str(clickedNode))
+            print ('Successfully clicked node')
             return json.dumps({"data": str(output)})
         else:
             return json.dumps({'error': True}), 200, {'ContentType': 'application/json'}

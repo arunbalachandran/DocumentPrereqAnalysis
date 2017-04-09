@@ -2,7 +2,7 @@ var isTouchDevice = 'd' in document.documentElement;
 
 // Create the Shepherd tour
 
-var container = document.getElementById("container");
+var container = document.getElementById("namecontainer");
 var buttons = document.getElementById("buttons");
 var formbox = document.getElementById("formbox");
 
