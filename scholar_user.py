@@ -78,11 +78,12 @@ def get_query_html(query_txt):
                     # link['href'] = '#'
     # get rid of author links
     list_auth_on_scholar = soup.findAll("div", {"class": "gs_a"})
-    for auth in list_auth_on_scholar:
-        try:
-            auth.a['href'] = '#'
-        except:
-            pass
+    for schol in list_auth_on_scholar:
+        for auth in schol.find_all('a'):
+            try:
+                auth['href'] = '#'
+            except:
+                pass
             # print ('couldnt assign href to ', auth.a)
 
     # this may or may not work - decompose the main gs_top div
@@ -104,6 +105,19 @@ def get_query_html(query_txt):
     list_save_divs = soup.findAll("span", {"class": "gs_nph"})
     for div in list_save_divs:
         div.decompose()
+    # remove pdf title
+    # get rid of the saving message
+    list_save_divs = soup.findAll("span", {"class": "gs_ct1"})
+    for div in list_save_divs:
+        div.decompose()
+    list_save_divs = soup.findAll("span", {"class": "gs_ct2"})
+    for div in list_save_divs:
+        div.decompose()
+    # get rid of cached div
+    list_save_divs = soup.findAll("a", {"class": "gs_nvi"})
+    for div in list_save_divs:
+        div.decompose()
+        
     return str(soup)
 
 # print ('Does div class still exist', soup.findAll('div', {'class': 'gs_rs'}))

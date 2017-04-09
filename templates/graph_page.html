@@ -22,6 +22,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/progress.css') }}">
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/starter-template.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/amazonscraper.css') }}">
 
     <script>  // use this in the below binding script
       var graphNodes = {{ nodes|tojson }};
@@ -51,7 +52,8 @@
                     console.log("Success case!");
                     var parsedData = JSON.parse(data);
                     console.log("No problems here");
-                    $("#scholardiv").html(parsedData['data']);
+                    $("#scholardiv").html(parsedData['data1']);
+                    $("#amazonDiv").html(parsedData['data2']);
                 },
                 error: function (data) {
                     console.log("failure case!");
@@ -141,7 +143,7 @@
       <!-- <div class="row"> -->
         <div class="col-md-6 gwd-div-sqmu gwd-gen-9lgjgwdanimation" id="scholardiv">
         </div>
-        <div class="col-md-6 gwd-div-14zh">
+        <div class="col-md-6 gwd-div-14zh" id="amazonDiv">
             This section is for Amazon Book API.
         </div>
       <!-- </div> -->

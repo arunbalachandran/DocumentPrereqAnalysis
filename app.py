@@ -5,6 +5,7 @@ import wikiprereq_finder
 import sys
 import scholar_user
 import os
+import amazonscraper
 # from pathlib import Path
 # path_var = Path('.')
 app = Flask(__name__)
@@ -50,9 +51,10 @@ def node_clicked():
         print ("Clicked node was " + str(clickedNode))
         # check if clicked node is not central node
         if (clickedNode not in os.listdir(app.config['UPLOAD_FOLDER'])):
-            output = scholar_user.get_query_html(str(clickedNode))
+            scholardata = scholar_user.get_query_html(str(clickedNode))
+            amazondata = amazonscraper.get_products(str(clickedNode))
             print ('Successfully clicked node')
-            return json.dumps({"data": str(output)})
+            return json.dumps({"data1": str(scholardata), "data2": str(amazondata)})
         else:
             return json.dumps({'error': True}), 200, {'ContentType': 'application/json'}
 
