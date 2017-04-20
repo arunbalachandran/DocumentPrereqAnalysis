@@ -1,1 +1,1 @@
-web: waitress-serve --port=8000 app:app
+web: python app.py

@@ -1,1 +1,1 @@
-web: waitress-serve --listen=*:$PORT app:app
+web: python app.py:app

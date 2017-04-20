@@ -63,6 +63,7 @@ def node_clicked():
         else:
             return json.dumps({'error': True}), 200, {'ContentType': 'application/json'}
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
     # app.run()
-    # serve(app)
+    print ('Port that should set is', os.environ.get('PORT'))
+    serve(app, port=os.environ.get('PORT', 8000))
