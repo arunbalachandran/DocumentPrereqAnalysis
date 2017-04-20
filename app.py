@@ -53,7 +53,7 @@ def node_clicked():
     if request.method == 'POST':
         data = request.get_json()
         clickedNode = data["clickdata"]
-        print ("Clicked node was " + str(clickedNode))
+        print ("The clicked node was " + str(clickedNode))
         # check if clicked node is not central node
         if (clickedNode not in os.listdir(app.config['UPLOAD_FOLDER'])):
             scholardata = scholar_user.get_query_html(str(clickedNode))

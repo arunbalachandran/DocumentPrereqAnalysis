@@ -36,7 +36,7 @@ def showIndex():
         else:
             filename = secure_filename(f.filename)
             f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            print ('save should be successful')
+            print ('This save should be successful')
             nodes = wikiprereq_finder.get_concepts(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             if len(nodes) == 0:
                 flash("Sorry but the system couldn't find any concepts in the document.")
