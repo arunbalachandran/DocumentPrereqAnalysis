@@ -1,1 +1,1 @@
-web: waitress-serve --listen=*:8041 app:app
+web: waitress-serve --port=8000 app:app
