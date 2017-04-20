@@ -40,7 +40,7 @@ def insert_user_credentials(emailid, hashed_password):
     cursor = conn.cursor()
     cursor.execute('INSERT INTO usercred VALUES ("' + emailid + '", "' + hashed_password + '");')
     conn.commit()
-    print ('Added user to table.')
+    print ('Added the user to the table.')
 
 @app.route('/', methods=['GET'])
 def show_index():
