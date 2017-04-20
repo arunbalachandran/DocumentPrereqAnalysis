@@ -53,8 +53,12 @@ def get_concepts(filepath):
     original_path = os.getcwd()
     os.chdir(os.path.abspath(os.path.join(filepath, os.pardir)))
     print ('changed directory to', os.getcwd())
-    cmd = 'gswin64c -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + filename + ' -c quit'
-    proc = subprocess.Popen(shlex.split(cmd, posix=False), stdout=subprocess.PIPE)  # don't need the posix option if the filesystem is not windows
+    if sys.platform == 'win32':
+        cmd = 'gswin64c -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + filename + ' -c quit'
+        proc = subprocess.Popen(shlex.split(cmd, posix=False), stdout=subprocess.PIPE)  # don't need the posix option if the filesystem is not windows
+    else:
+        cmd = 'gs -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + filename + ' -c quit'
+        proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)  # don't need the posix option if the filesystem is not windows
     pdftext, stderr = proc.communicate()
     pdftext = str(pdftext).lower()
     print ('command is', cmd)
