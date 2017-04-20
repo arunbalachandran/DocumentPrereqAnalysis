@@ -1,7 +1,10 @@
 from amazon.api import AmazonAPI
 
 config = {
-# set this to your key value
+'access_key': 'AKIAJCPOBYH5S64QRKMQ',
+'secret_key': 'wb+tw4Qlb2FG6AQ2Aq8IYmz4CLJ2lxKEJXJXeeUT',
+'associate_tag': 'suhaspatil-20',
+'locale': 'us'
 }
 
 def get_products(keyword):

@@ -25,6 +25,7 @@ def showIndex():
             flash('No file part.')
             return redirect(request.url)
         f = request.files['file']
+        print ('is allowed file name', allowed_file(f.filename))
         if f.filename == '' or not allowed_file(f.filename):
             flash("Invalid file or none selected! Please select a file or check if the file is a 'pdf' before pressing the submit button.")
             return redirect(request.url)
