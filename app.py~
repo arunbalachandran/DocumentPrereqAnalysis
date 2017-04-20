@@ -41,7 +41,7 @@ def showIndex():
             if len(nodes) == 0:
                 flash("Sorry but the system couldn't find any concepts in the document.")
                 return redirect(request.url)
-            print ('nodes are ', nodes)
+            print ('The nodes are ', nodes)
             # add a central node
             add_central_node = {}
             add_central_node[filename] = nodes
