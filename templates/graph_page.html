@@ -52,6 +52,7 @@
                     console.log("Success case!");
                     var parsedData = JSON.parse(data);
                     console.log("No problems here");
+                    // $('.loadingGif').fadeOut('1000');
                     $("#scholardiv").html(parsedData['data1']);
                     $("#amazonDiv").html(parsedData['data2']);
                 },
@@ -95,7 +96,7 @@
       </div>
       <div class="navbar-collapse collapse" id="navbar">
         <ul class="nav navbar-nav">
-          <li><a href="#">Test</a></li>
+          <li><a href="{{ url_for('show_logout') }}" style="margin-left: 1500%">Logout</a></li>
         </ul>
       </div>
     </nav>
@@ -142,9 +143,12 @@
       <!-- </div> -->
       <!-- <div class="row"> -->
         <div class="col-md-6 gwd-div-sqmu gwd-gen-9lgjgwdanimation" id="scholardiv">
+          <p style="text-align: center; margin-top: 23%;">Click a node to view a list of papers related to that research topic.</p>
+          <img src="{{ url_for('static', filename='img/ajax-loader.gif') }}" class="loadingGif">
         </div>
         <div class="col-md-6 gwd-div-14zh" id="amazonDiv">
-            This section is for Amazon Book API.
+          <p style="text-align: center; margin-top: 23%;">Click a node to view a list of books on Amazon relevant to that topic.</p>
+          <img src="{{ url_for('static', filename='img/ajax-loader.gif') }}" class="loadingGif">
         </div>
       <!-- </div> -->
     </div>
@@ -155,8 +159,12 @@
           //Make the change here to get the clicked node. AJAX call would be the same.
           console.log("The document is ready!");
           // $('.gsc-search-box').hide();
+          $('.loadingGif').hide();
           $('.gsc-search-button').hide();
           LoadGoogle();
+          // $(document).ajaxStart(function() {
+              // $('.loadingGif').show();
+          // })
       });
   </script>
 </html>

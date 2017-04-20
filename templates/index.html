@@ -1,62 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
-   <head>
-      <title> DCPA </title>
-      <!-- Latest compiled and minified CSS -->
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-         integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-         crossorigin="anonymous">
-      <!-- Optional theme -->
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-         integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
-         crossorigin="anonymous">
-      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-      <script src = "https://code.jquery.com/jquery.js"></script>
-      <!-- Latest compiled and minified JavaScript -->
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-         crossorigin="anonymous"></script>
-   </head>
-   <style>
-      .file {
-          visibility: hidden;
-          position: absolute;
-      }
-   </style>
-   <body>
-      <div class="container" style="padding-top: 16%;">
-         <form class = "bs-example bs-example-form" method='post' enctype=multipart/form-data role="form" id="uploadForm">
-            <div class="form-group">
-               <div class="input-group col-xs-12">
-                  <input type="file" name="file" class="file">
-                  <input type="text" class="form-control input-lg" disabled placeholder="Upload Your Paper">
-                  <span class="input-group-btn">
-                  <button class="browse btn btn-primary input-lg" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button>
-                  </span>
-               </div>
+<!-- saved from url=(0049)https://v4-alpha.getbootstrap.com/examples/cover/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="https://v4-alpha.getbootstrap.com/favicon.ico">
+    <title>DCPA</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='css/cover.css') }}" rel="stylesheet">
+  </head>
+  <body>
+    <div class="site-wrapper" style="background-image: url('static/img/dcpa.jpg');" id="backgroundDiv">
+      <div class="site-wrapper-inner">
+        <div class="cover-container">
+          <div class="masthead clearfix">
+            <div class="inner">
+              <h3 class="masthead-brand text-div">The DCPA</h3>
+              <nav class="nav nav-masthead" style="margin-top: 3.5%">
+                <a class="nav-link active text-div" href="#">Home</a>
+                <a class="nav-link active text-div" href="{{ url_for('show_signin') }}">Sign In</a>
+                <a class="nav-link active text-div" href="{{ url_for('show_registration') }}">Register</a>
+              </nav>
             </div>
-            <div class="process_button">
-               <input type="submit" value='Upload'id="btnUpload" class = "btn btn-primary" style="width: 100%;"/>
-            </div>
-        </form>
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for message in messages %}
-              <p>{{ message }}</p>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
+          </div>
+
+          <div class="inner cover">
+            <h1 class="cover-heading text-div">Go through research papers faster.</h1>
+            <p class="lead">Upload your research paper and get a comprehensive list of the various important topics covered in the research paper. Also, get a list of various topics that you need to learn to understand the paper completely.</p>
+            <p class="lead text-div">
+              <a href="#" class="btn btn-lg btn-secondary">Learn more</a>
+            </p>
+          </div>
+        </div>
       </div>
-   </body>
-   <script>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- Latest compiled and minified JavaScript -->
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src=" {{url_for('static', filename='js/ie10-viewport-bug-workaround.js.download')}}"></script>
+    <script>
       $(document).ready(function() {
-          $(document).on('click', '.browse', function() {
-              var file = $(this).parent().parent().parent().find('.file');
-              file.trigger('click');
-          });
-          $(document).on('change', '.file', function() {
-              $(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
-          });
+        $("#backgroundDiv").css({ opacity: 0.9 });
+        $(".text-div").css({ opacity: 1 });
       });
-   </script>
-</hmtl>
+    </script>
+</body>
+</html>

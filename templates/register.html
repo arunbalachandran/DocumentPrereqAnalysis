@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Automated class roll system">
+    <meta name="author" content="Arun Balchandran">
+    <link rel="icon" href="https://v4-alpha.getbootstrap.com/favicon.ico">
+    <title>DCPA</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="{{ url_for('static', filename='css/signin.css') }}" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <script>
+      $(document).ready(function() {
+          $("#invalidPassword").hide();
+          $("#signupForm").submit(function(event) {
+              event.preventDefault();
+              $.ajax({
+                  url: "{{ url_for('show_registration') }}",
+                  data: JSON.stringify($("#signupForm").serialize()),
+                  type: "POST",
+                  contentType: 'application/json;charset=UTF-8',
+                  success: function(result) {
+                      console.log("Successfully sent the server a registration request!");
+                      console.log(result);
+                      window.location.replace("{{ url_for('show_signin') }}");
+                  },
+                  error: function(result) {
+                      $("#invalidPassword").show().fadeOut(4000);
+                      console.log(result);
+                  }
+              });
+          });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div class="container">
+      <form class="form-signin" id="signupForm" method="post" action="#">
+        <h2 class="form-signin-heading" style="margin-bottom: 12%; text-align: center;">Register</h2>
+        <!-- <label for="inputEmail" class="sr-only">Email address</label> -->
+        <p style="margin-bottom: 4%;">Email address</p>
+        <input type="email" id="inputEmail" name="emailid" class="form-control" placeholder="Email address" required="" autofocus="">
+        <!-- <label for="inputPassword" class="sr-only">Password</label> -->
+        <p style="margin-bottom: 4%; margin-top: 6%;">Password</p>
+        <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required="">
+        <!-- <label for="inputPasswordDup" class="sr-only">Password (Confirmation)</label> -->
+        <p style="margin-top: 5%, margin-bottom: 4%">Password (Confirmation)</p>
+        <input type="password" id="inputPasswordDup" name="password" class="form-control" placeholder="Repeat Password" required="">
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign me up already!</button>
+      </form>
+      <p id="invalidPassword" style="text-align: center;">Oops! The passwords don't seem to match. Please try again!</p>
+    </div>
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="{{ url_for('static', filename='js/ie10-viewport-bug-workaround.js.download') }}"></script>
+  </body>
+</html>

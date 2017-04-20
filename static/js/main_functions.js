@@ -41,7 +41,7 @@ function expandNodeCallback(page) {
         var subpageID = subpage;
         // debugger;
         if (nodes.getIds().indexOf(subpageID) == -1) {        //Don't add if node exists
-            subnodes.push({id: subpageID, label: subpage.replace('_', ' '), value: 1, level: level, color: getColor(level), parent: page,
+            subnodes.push({id: subpageID, label: subpage.replace(/_/g, ' '), value: 1, level: level, color: getColor(level), parent: page,
                            node_parent_marker: nodes.get(page)['node_parent_marker'][key], x: nodeSpawn[0], y: nodeSpawn[1]});  //Add node
             // subnodes.push({id: subpageID, label: wordwrap(decodeURIComponent(subpage),15), value: 1,
             //                level: level, color: getColor(level), parent: page,

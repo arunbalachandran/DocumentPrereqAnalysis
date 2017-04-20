@@ -72,11 +72,11 @@ def get_concepts(filepath):
     #    keywords = fp.read().split()
     # future scope -> check bigrams and trigrams and also improve simple word checking using search library
     # how do I reduce the number of concepts? or maybe implement a hide functionality for nodes
-    concepts_with_count = []
+    concepts_with_count = []  # need to refine this stupid condition
     for concept in title_links:
-        if concept.lower() in pdftext:
+        if ' '+concept.lower()+' ' in pdftext:
             concepts_with_count.append((concept, pdftext.count(concept.lower())))
-        elif concept.replace('_', ' ').lower() in pdftext:
+        elif ' '+concept.replace('_', ' ').lower()+' ' in pdftext:
             concepts_with_count.append((concept, pdftext.count(concept.replace('_', ' ').lower())))
     # concepts = [concept for concept in title_links if concept.lower() in pdftext or ' '.join(concept.split('_')).lower() in pdftext]
     concepts = [concept[0] for concept in concepts_with_count if concept[1] > 2]    # keep this count variable for experiment
