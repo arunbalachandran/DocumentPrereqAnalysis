@@ -37,6 +37,7 @@ def showIndex():
             filename = secure_filename(f.filename)
             f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             print ('This save should be successful')
+            print (os.listdir(app.config['UPLOAD_FOLDER']), 'is the content of the path')
             nodes = wikiprereq_finder.get_concepts(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             if len(nodes) == 0:
                 flash("Sorry but the system couldn't find any concepts in the document.")
@@ -53,7 +54,7 @@ def node_clicked():
     if request.method == 'POST':
         data = request.get_json()
         clickedNode = data["clickdata"]
-        print ("Clicked node was " + str(clickedNode))
+        print ("The clicked node was " + str(clickedNode))
         # check if clicked node is not central node
         if (clickedNode not in os.listdir(app.config['UPLOAD_FOLDER'])):
             scholardata = scholar_user.get_query_html(str(clickedNode))
