@@ -1,3 +1,4 @@
+from waitress import serve
 from flask import Flask, request, redirect, url_for, render_template, flash
 from werkzeug.utils import secure_filename
 import os, json, subprocess, shlex, sys
@@ -11,6 +12,9 @@ import amazonscraper
 app = Flask(__name__)
 app.secret_key = 'This is a very very top secret key.'
 app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'docs')
+print ('current working directory is ', os.getcwd())
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 ALLOWED_EXTENSIONS = set(['pdf'])
 
 def allowed_file(filename):
@@ -59,5 +63,6 @@ def node_clicked():
         else:
             return json.dumps({'error': True}), 200, {'ContentType': 'application/json'}
 
-if __name__ == '__main__':
-    app.run()
+# if __name__ == '__main__':
+    # app.run()
+    # serve(app)

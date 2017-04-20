@@ -48,7 +48,7 @@ def recursive_search(dictionary, search_key):
 
 def get_concepts(filepath):
     # make this platform independent
-    os.chdir(os.path.join(os.path.abspath(sys.path[0]), 'docs'))
+    os.chdir(os.path.join(os.path.abspath(os.getcwd()), 'docs'))
     cmd = 'gswin64c -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + filepath + ' -c quit'
     proc = subprocess.Popen(shlex.split(cmd, posix=False), stdout=subprocess.PIPE)  # don't need the posix option if the filesystem is not windows
     pdftext, stderr = proc.communicate()
