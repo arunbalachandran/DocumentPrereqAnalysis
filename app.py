@@ -5,7 +5,7 @@ from werkzeug import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mysqldb import MySQL
 import os, json, subprocess, shlex, sys
-import wikiprereq_finder
+import prereq_fetcher
 import sys
 import scholar_user
 import os
@@ -17,6 +17,7 @@ app = Flask(__name__)
 app.secret_key = os.environ['APP_SECRET']
 db_url = os.environ['MYSQL_DATABASE_URL'].split('//')
 # db_url = os.environ['CLEARDB_DATABASE_URL'].split('//')
+app.config['GOOGLE_KEY'] = os.environ.get('GOOGLE_KEY')
 app.config['MYSQL_USER'] = db_url[1].split(':')[0]
 app.config['MYSQL_PASSWORD'] = db_url[1].split(':')[1].split('@')[0]
 app.config['MYSQL_DB'] = db_url[1].split(':')[1].split('@')[1].split('/')[1].split('?')[0]
@@ -43,6 +44,38 @@ def insert_user_credentials(emailid, hashed_password):
     cursor.execute('INSERT INTO user_tab (user_name, password) VALUES ("' + emailid + '", "' + hashed_password + '");')
     conn.commit()
     print ('Added user to table.')
+
+def insert_paper_rating(data):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    query = 'SELECT paper_id, paper_title, rating, paper_user_rated_count, paper_rating_sum FROM paper_rating WHERE paper_title=%s'
+    cursor.execute(query, (session['CURRENT_PAPER_TITLE'],))
+    paper_rating = 0
+    if cursor.rowcount > 0:  # if there is data
+        cdata = cursor.fetchall()
+        paper_rating = float((cdata[0][4] + int(data['value'])) / (cdata[0][3] + 1))
+        paper_users_rated = cdata[0][3] + 1
+        query_update = 'UPDATE paper_rating SET rating = %s, paper_user_rated_count = %s, paper_rating_sum = %s WHERE paper_id = %s'
+        cursor.execute(query_update,(paper_rating, paper_users_rated, (cdata[0][4] + int(data['value'])), cdata[0][0],))
+        conn.commit()
+    else:  # paper not found for rating
+        print ('Data not found......')
+        # insert new record here.
+        query_insert_first_rate = 'INSERT INTO paper_rating (paper_title, rating, paper_user_rated_count, paper_rating_sum) values (%s, %s, %s, %s)'
+        cursor.execute(query_insert_first_rate, (session_example['CURRENT_PAPER_TITLE'], data['value'], 1, data['value'], ))
+        conn.commit()
+    return paper_rating
+
+def get_paper_rating():
+    conn = mysql.connection
+    cursor = conn.cursor()
+    query = 'SELECT paper_id, paper_title, rating, paper_user_rated_count, paper_rating_sum FROM paper_rating WHERE paper_title=%s'
+    cursor.execute(query, (session['CURRENT_PAPER_TITLE'],))
+    paper_rating = 0
+    if cursor.rowcount > 0:  # if there is data
+        cdata = cursor.fetchall()
+        paper_rating = cdata[0][2]
+    return paper_rating
 
 @app.route('/', methods=['GET'])
 def show_index():
@@ -77,7 +110,9 @@ def show_signin():
                 sys.stdout.write('The password matches correctly\n')
                 session['CURRENT_USER'] = emailid
                 session['CURRENT_USER_ID'] = data[0][0]
-                session['CURRENT_USER_FOLDER'] = os.path.join(app.config['UPLOAD_FOLDER'], session['CURRENT_USER_ID'])
+                session['CURRENT_USER_FOLDER'] = os.path.join(app.config['UPLOAD_FOLDER'], session['CURRENT_USER'])
+                if not os.path.exists(session['CURRENT_USER_FOLDER']):
+                    os.makedirs(session['CURRENT_USER_FOLDER'])
                 return json.dumps({'success': 'Successful login'}), 200, {'contentType': 'application/json;charset=UTF-8'}
             else:
                 sys.stdout.write("The password for the username doesn't match stored record\n")
@@ -109,8 +144,17 @@ def title_check():
             else:
                 filename = secure_filename(f.filename)
                 f.save(os.path.join(session['CURRENT_USER_FOLDER'], filename))
-                fp = open(os.path.join(session['CURRENT_USER_FOLDER'], filename), 'rb')
                 session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
+                nodes, abstract = prereq_fetcher.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+                print ('Current detected nodes', nodes)
+                session['CURRENT_PAPER_ABSTRACT'] = abstract
+                if len(nodes) == 0:
+                    return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
+                    # add a central node
+                add_central_node = {}
+                add_central_node[filename] = nodes
+                session['CURRENT_PAPER_NODES'] = add_central_node
+                fp = open(os.path.join(session['CURRENT_USER_FOLDER'], filename), 'rb')
                 parser = PDFParser(fp)
                 doc = PDFDocument(parser)
                 parser.set_document(doc)
@@ -123,14 +167,19 @@ def title_check():
                         return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
                 else:
                     return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
-                nodes, abstract = prereq_fetcher.get_concepts(session['CURRENT_USER_FOLDER'], filename))
-                session['CURRENT_PAPER_ABSTRACT'] = abstract
-                if len(nodes) == 0:
-                    return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
-                # add a central node
-                add_central_node = {}
-                add_central_node[filename] = nodes
-                return render_template('graph_page.html', nodes=add_central_node, page_ranking=0)
+                return json.dumps({'success': 'Successful check for title existence'}), 200, {'ContentType': 'application/json'}
+
+@app.route('/userHome', methods=['GET', 'POST'])
+def show_home():
+    if request.method == 'GET':
+        current_paper_rating = get_paper_rating()
+        return render_template('graph_page.html', nodes=session['CURRENT_PAPER_NODES'], googlecx=app.config['GOOGLE_KEY'], paper_rating=current_paper_rating)
+
+@app.route('/paperRating')
+def paper_rating():
+    if session.get('CURRENT_USER'):
+        if request.method == 'POST':
+            print ('hello')
 
 @app.route('/logout', methods=['GET'])
 def show_logout():

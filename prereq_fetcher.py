@@ -25,16 +25,18 @@ def get_concepts(filepath):
         proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)  # don't need the posix option if the filesystem is not windows
     pdftext, stderr = proc.communicate()
     pdftext = str(pdftext).lower()
+    abstract_text, abstract_index = '', ''
     sentences = pdftext.split('\n')
     for index, sentence in enumerate(sentences):
         if 'Abstract' in sentence:
             abstract_index = index
     temp_list = []
-    for sentence in sentences[abstract_index+1:]:
-        temp_list.append(sentence)
-        if 'Introduction' in sentence:
-            break
-    abstract_text = ' '.join(temp_list[:-1])
+    if abstract_index:
+        for sentence in sentences[abstract_index+1:]:
+            temp_list.append(sentence)
+            if 'Introduction' in sentence:
+                break
+        abstract_text = ' '.join(temp_list[:-1])
     print ('command is', cmd)
     os.chdir(original_path)
     print ('changed back to', os.getcwd())

@@ -63,6 +63,7 @@
    <script>
       $(document).ready(function() {
           $("#titleForm").hide();
+          $("#invalidFile").hide();
           $("#invalidTitle").hide();
           $("#backgroundDiv").css({ opacity: 0.9 });
           $(".text-div").css({ opacity: 1 });
@@ -93,15 +94,15 @@
                       window.location.href = "{{ url_for('show_home') }}";
                   },
                   error: function(result) {
-                      console.log("Data is" + result)
-                      // debugger;
+                      debugger;
+                      console.log("Data is" + JSON.parse(result.responseText))
                       if (JSON.parse(result.responseText)['error'] === 'No concepts') {
                           console.log("No concepts found!");
                           // set some div
                           $("#noConcepts").show();
                       }
                       else if (JSON.parse(result.responseText)['error'] === 'Invalid file') {
-                          $("#invalidFile").show();
+                          $("#invalidFile").show().fadeOut(4000);
                       }
                       else {
                           $("#titleForm").show();
