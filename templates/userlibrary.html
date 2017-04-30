@@ -5,7 +5,7 @@
    <script language="JavaScript" src="https://cdn.datatables.net/plug-ins/3cfcc339e89/integration/bootstrap/3/dataTables.bootstrap.js" type="text/javascript"></script>
    <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
    <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/plug-ins/3cfcc339e89/integration/bootstrap/3/dataTables.bootstrap.css">
-   <body>
+   <body style="background-image: url('/static/img/library.jpg');">
       <div class="container">
          <div class="row">
             <h2 class="text-center">Your Library</h2>
@@ -38,8 +38,9 @@
                         <td>{{i[3]}}</td>
                         <td>{{i[1]}}</td>
                         <!-- <td><a href=>View Paper</a></td> -->
-                        <td><form class="viewForm"><input type="submit" class="btn btn-primary" paperPath="{{ i[3] }}" id="{{ 'paper' + j|string }}" ></form></td>
-                        <td><a href >View Prerequisite</a></td>
+                        <td><form class="viewForm"><input type="submit" value="View Paper" class="btn btn-primary" paperTitle="{{ i[3] }}" id="{{ 'paper' + j|string }}" ></form></td>
+                        <td><form class="viewPrereqForm"><input type="submit" value="View Prerequisite" class="btn btn-primary" paperTitle="{{ i[3] }}" id="{{ 'paper' + j|string }}" ></form></td>
+                        <!-- <td><a href >View Prerequisite</a></td> -->
                      </tr>
                      {% endfor %}
                   </tbody>
@@ -102,7 +103,7 @@
             event.preventDefault();
             var x = $(this).children().attr("id");
             console.log('This is id ', x);
-            var paperName = $('#'+x).attr("paperPath");
+            var paperName = $('#'+x).attr("paperTitle");
             $.ajax({
                 url: "{{ url_for('show_pdf') }}",
                 data: JSON.stringify(paperName),
@@ -116,7 +117,27 @@
                 error: function(result) {
                     console.log(result.responseText);
                 }
-
+            });
+        });
+        $(".viewPrereqForm").submit(function(event) {
+            // debugger;
+            event.preventDefault();
+            var x = $(this).children().attr("id");
+            console.log('This is id ', x);
+            var paperName = $('#'+x).attr("paperTitle");
+            $.ajax({
+                url: "{{ url_for('show_prereq') }}",
+                data: JSON.stringify(paperName),
+                type: "POST",
+                contentType: 'application/json;charset=UTF-8',
+                success: function(result) {
+                    console.log("Successfully sent the server the name!");
+                    console.log(result);
+                    window.location.href = "{{ url_for('show_home') }}";
+                },
+                error: function(result) {
+                    console.log(result.responseText);
+                }
             });
         });
       });

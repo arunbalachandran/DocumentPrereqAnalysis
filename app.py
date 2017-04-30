@@ -103,6 +103,16 @@ def get_path_from_title(temp_title):
     data = cursor.fetchall()[0][0]
     return data
 
+
+def get_abstract_nodes_from_title():
+    conn = mysql.connection
+    cursor = conn.cursor()
+    query = 'SELECT paper_abstract, paper_prerequisite FROM pdf_user_trace WHERE paper_title=%s AND user_id=%s'
+    cursor.execute(query, (session['CURRENT_PAPER_TITLE'], session['CURRENT_USER_ID']))
+    data = cursor.fetchall()
+    abstract, prereq = data[0][0], data[0][1]
+    return (abstract, prereq)
+
 @app.route('/', methods=['GET'])
 def show_index():
     if request.method == 'GET':
@@ -231,6 +241,16 @@ def show_pdf():
             return json.dumps({'success': 'Got file data'}), 200, {'contentType': 'application/json'}
             # return render_template('viewpdf.html', data=data)
 
+@app.route('/viewPrereq', methods=['POST'])
+def show_prereq():
+    if session.get('CURRENT_USER'):
+        if request.method == 'POST':
+            data = request.get_json()
+            session['CURRENT_PAPER_TITLE'] = data
+            session['CURRENT_PAPER_PATH'] = get_path_from_title(data)
+            session['CURRENT_PAPER_ABSTRACT'], prereqs = get_abstract_nodes_from_title()
+            session['CURRENT_PAPER_NODES'] = json.loads(prereqs)
+            return json.dumps({'success': 'Successfully retrieved paper data'}), 200, {'contentType': 'application/json'}
 
 @app.route('/paperRating', methods=['POST'])
 def paper_rating():
