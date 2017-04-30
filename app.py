@@ -91,7 +91,9 @@ def show_upload():
         if request.method == 'GET':
             return render_template('upload.html')
         elif request.method == 'POST':
-            
+            title = request.get_json()
+            print ('title is', title)
+            # urllib.urlparse.parse_qs
 
 @app.route('/titleCheck', methods=['POST'])
 def title_check():
@@ -108,6 +110,7 @@ def title_check():
                 filename = secure_filename(f.filename)
                 f.save(os.path.join(session['CURRENT_USER_FOLDER'], filename))
                 fp = open(os.path.join(session['CURRENT_USER_FOLDER'], filename), 'rb')
+                session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
                 parser = PDFParser(fp)
                 doc = PDFDocument(parser)
                 parser.set_document(doc)
@@ -120,7 +123,8 @@ def title_check():
                         return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
                 else:
                     return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
-                nodes = prereq_fetcher.get_concepts(session['CURRENT_USER_FOLDER'], filename))
+                nodes, abstract = prereq_fetcher.get_concepts(session['CURRENT_USER_FOLDER'], filename))
+                session['CURRENT_PAPER_ABSTRACT'] = abstract
                 if len(nodes) == 0:
                     return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
                 # add a central node
