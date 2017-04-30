@@ -1,5 +1,5 @@
 # from waitress import serve
-from flask import Flask, request, redirect, url_for, render_template, flash, session
+from flask import Flask, request, redirect, url_for, render_template, flash, session, send_file
 from werkzeug.utils import secure_filename
 from werkzeug import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -62,7 +62,7 @@ def insert_paper_rating(data):
         print ('Data not found......')
         # insert new record here.
         query_insert_first_rate = 'INSERT INTO paper_rating (paper_title, rating, paper_user_rated_count, paper_rating_sum) values (%s, %s, %s, %s)'
-        cursor.execute(query_insert_first_rate, (session_example['CURRENT_PAPER_TITLE'], data['value'], 1, data['value'], ))
+        cursor.execute(query_insert_first_rate, (session['CURRENT_PAPER_TITLE'], data['value'], 1, data['value'], ))
         conn.commit()
     return paper_rating
 
@@ -76,6 +76,32 @@ def get_paper_rating():
         cdata = cursor.fetchall()
         paper_rating = cdata[0][2]
     return paper_rating
+
+def check_file_exists():
+    conn = mysql.connection
+    cursor = conn.cursor()
+    query = 'SELECT user_id, paper_title FROM pdf_user_trace WHERE user_id=%s AND paper_title=%s'
+    cursor.execute(query, (session['CURRENT_USER_ID'], session['CURRENT_PAPER_TITLE'], ))
+    if cursor.rowcount == 0:
+        query_insert = 'INSERT INTO pdf_user_trace (user_id, paper_abstract, paper_path, paper_title, paper_prerequisite) VALUES (%s, %s, %s, %s, %s)'
+        cursor.execute(query_insert, (session['CURRENT_USER_ID'], session['CURRENT_PAPER_ABSTRACT'], str(session['CURRENT_PAPER_PATH']), session['CURRENT_PAPER_TITLE'], json.dumps(session['CURRENT_PAPER_NODES']),))
+        conn.commit()
+
+def populate_library():
+    conn = mysql.connection
+    cursor = conn.cursor()
+    query = 'SELECT user_id, paper_abstract, paper_path, paper_title, paper_prerequisite FROM pdf_user_trace WHERE user_id=%s'
+    cursor.execute(query, (session['CURRENT_USER_ID'],))
+    data = cursor.fetchall()
+    return data
+
+def get_path_from_title(temp_title):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    query = 'SELECT paper_path FROM pdf_user_trace WHERE paper_title=%s AND user_id=%s'
+    cursor.execute(query, (temp_title, session['CURRENT_USER_ID']))
+    data = cursor.fetchall()[0][0]
+    return data
 
 @app.route('/', methods=['GET'])
 def show_index():
@@ -127,7 +153,10 @@ def show_upload():
             return render_template('upload.html')
         elif request.method == 'POST':
             title = request.get_json()
+            title = urllib.parse.parse_qs(title)['titleText'][0]
             print ('title is', title)
+            session['CURRENT_PAPER_TITLE'] = title
+            return json.dumps({'success': 'Paper title received'}), 200, {'contentType': 'application/json'}
             # urllib.urlparse.parse_qs
 
 @app.route('/titleCheck', methods=['POST'])
@@ -147,6 +176,7 @@ def title_check():
                 session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
                 nodes, abstract = prereq_fetcher.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
                 print ('Current detected nodes', nodes)
+                print ('Current paper abstract is', abstract)
                 session['CURRENT_PAPER_ABSTRACT'] = abstract
                 if len(nodes) == 0:
                     return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
@@ -171,15 +201,45 @@ def title_check():
 
 @app.route('/userHome', methods=['GET', 'POST'])
 def show_home():
-    if request.method == 'GET':
-        current_paper_rating = get_paper_rating()
-        return render_template('graph_page.html', nodes=session['CURRENT_PAPER_NODES'], googlecx=app.config['GOOGLE_KEY'], paper_rating=current_paper_rating)
+    if session.get('CURRENT_USER'):
+        if request.method == 'GET':
+            current_paper_rating = get_paper_rating()
+            check_file_exists()
+            return render_template('graph_page.html', nodes=session['CURRENT_PAPER_NODES'], googlecx=app.config['GOOGLE_KEY'], paper_rating=current_paper_rating)
 
-@app.route('/paperRating')
+@app.route('/userLibrary', methods=['GET'])
+def show_library():
+    if session.get('CURRENT_USER'):
+        if request.method == 'GET':
+            data = populate_library()
+            return render_template('userlibrary.html', dataset=enumerate(data))
+
+@app.route('/viewPdf', methods=['GET', 'POST'])
+def show_pdf():
+    if session.get('CURRENT_USER'):
+        if request.method == 'GET':
+            show_path = get_path_from_title(session['SHOW_PDF'])
+            # filename = os.path.basename(show_path)
+            return send_file(show_path)
+            # return render_template('viewpdf.html')
+            # with open(show_path, 'rb') as static_file:
+            #     return send_file(show_path)
+        if request.method == 'POST':
+            data = request.get_json()
+            print ('data received is', data)
+            session['SHOW_PDF'] = data
+            return json.dumps({'success': 'Got file data'}), 200, {'contentType': 'application/json'}
+            # return render_template('viewpdf.html', data=data)
+
+
+@app.route('/paperRating', methods=['POST'])
 def paper_rating():
     if session.get('CURRENT_USER'):
         if request.method == 'POST':
-            print ('hello')
+            data = request.get_json()
+            print ('data is', data)
+            result_rating = insert_paper_rating(data)
+            return json.dumps({'success': result_rating}), 200, {'ContentType': 'application/json'}
 
 @app.route('/logout', methods=['GET'])
 def show_logout():
@@ -191,7 +251,7 @@ def show_logout():
 def node_clicked():
     if session.get('CURRENT_USER'):
         if request.method == 'POST':
-            data = request.get_json()
+            data = request.get_json('data')
             clickedNode = data["clickdata"][:-4]
             print ("The clicked node was " + str(clickedNode))
             # check if clicked node is not central node

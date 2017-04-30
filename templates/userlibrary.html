@@ -37,7 +37,8 @@
                         <td>{{j + 1}}</td>
                         <td>{{i[3]}}</td>
                         <td>{{i[1]}}</td>
-                        <td><a href >View Paper</a></td>
+                        <!-- <td><a href=>View Paper</a></td> -->
+                        <td><form class="viewForm"><input type="submit" class="btn btn-primary" paperPath="{{ i[3] }}" id="{{ 'paper' + j|string }}" ></form></td>
                         <td><a href >View Prerequisite</a></td>
                      </tr>
                      {% endfor %}
@@ -94,10 +95,30 @@
    </body>
    <script>
       $(document).ready(function() {
-      $('#datatable').dataTable();
+        $('#datatable').dataTable();
+        // $("[data-toggle=tooltip]").tooltip();
+        $(".viewForm").submit(function(event) {
+            // debugger;
+            event.preventDefault();
+            var x = $(this).children().attr("id");
+            console.log('This is id ', x);
+            var paperName = $('#'+x).attr("paperPath");
+            $.ajax({
+                url: "{{ url_for('show_pdf') }}",
+                data: JSON.stringify(paperName),
+                type: "POST",
+                contentType: 'application/json;charset=UTF-8',
+                success: function(result) {
+                    console.log("Successfully sent the server the name!");
+                    console.log(result);
+                    window.location.href = "{{ url_for('show_pdf') }}";
+                },
+                error: function(result) {
+                    console.log(result.responseText);
+                }
 
-      $("[data-toggle=tooltip]").tooltip();
-
-      } );
+            });
+        });
+      });
    </script>
 </html>
