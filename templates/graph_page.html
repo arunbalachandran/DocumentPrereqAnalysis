@@ -87,6 +87,80 @@
       .navbar {
         margin-bottom: 0px;
       }
+
+      .firstTimeRating {
+        margin-top: 1%;
+        margin-left: 20%;
+        font-weight: bold;
+        color: darkgrey;
+      }
+
+      #ratingForPaperUL {
+        margin-top: 1%;
+        margin-left: 24%;
+        /*width: 150%;*/
+        font-weight: bold;
+        color: darkgrey;
+      }
+
+      .main-content {
+      height: 800px;
+      width: 1000px;
+      margin: 0 auto;
+      }
+
+      .overlay-bg {
+          display: none;
+          position: absolute;
+          top: 0;
+          left: 0;
+          height:100%;
+          width: 100%;
+          cursor: pointer;
+          z-index: 1000; /* high z-index */
+          background: #000; /* fallback */
+          background: rgba(0,0,0,0.75);
+      }
+          .overlay-content {
+              background: #fff;
+              padding: 1%;
+              width: 40%;
+              position: relative;
+              /*top: 15%;*/
+              left: 50%;
+              margin: 0 0 0 -20%; /* add negative left margin for half the width to center the div */
+              cursor: default;
+              border-radius: 4px;
+              box-shadow: 0 0 5px rgba(0,0,0,0.9);
+          }
+
+          .close-btn {
+              cursor: pointer;
+              border: 1px solid #333;
+              padding: 2% 5%;
+              background: #a9e7f9; /* fallback */
+              background: -moz-linear-gradient(top,  #a9e7f9 0%, #77d3ef 4%, #05abe0 100%);
+              background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9e7f9), color-stop(4%,#77d3ef), color-stop(100%,#05abe0));
+              background: -webkit-linear-gradient(top,  #a9e7f9 0%,#77d3ef 4%,#05abe0 100%);
+              background: -o-linear-gradient(top,  #a9e7f9 0%,#77d3ef 4%,#05abe0 100%);
+              background: -ms-linear-gradient(top,  #a9e7f9 0%,#77d3ef 4%,#05abe0 100%);
+              background: linear-gradient(to bottom,  #a9e7f9 0%,#77d3ef 4%,#05abe0 100%);
+              border-radius: 4px;
+              box-shadow: 0 0 4px rgba(0,0,0,0.3);
+          }
+          .close-btn:hover {
+              background: #05abe0;
+          }
+
+      /* media query for most mobile devices */
+      @media only screen and (min-width: 0px) and (max-width: 480px){
+
+          .overlay-content {
+              width: 96%;
+              margin: 0 2%;
+              left: 0;
+          }
+      }
     </style>
   </head>
   <!-- <body class="htmlNoPages"> -->
@@ -95,39 +169,48 @@
       <div class="navbar-header">
         <a href="#" class="navbar-brand">Document Prerequisite Classifier</a>
       </div>
-      <form>
-          <input required class="rb-rating" type="text" value="" title="">
-          <button type="submit" class="btn btn-primary" id="ratingButton">Submit Rating</button>
-      </form>
       <div class="navbar-collapse collapse" id="navbar">
-        <ul class="nav navbar-nav">
-          <li><a href="{{ url_for('show_logout') }}" style="margin-left: 1500%">Logout</a></li>
+        <ul class="nav navbar-nav" style="float: right;">
+          <li><a href="{{ url_for('show_logout') }}">Logout</a></li>
         </ul>
-        <ul class="nav navbar-nav">
+        <ul class="nav navbar-nav" style="float: right;">
           <li><a href="{{ url_for('show_library') }}">Show library</a></li>
         </ul>
-        <div class="rating_div">
-          <ul class="nav navbar-nav">
-            <li id="ratingForPaper"></li>
+        <ul class="nav navbar-nav" style="float: right;">
+          <li>
+            <a class="show-popup" href="#">Rate the paper</a>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav" id="ratingForPaperUL">
+          <li id="ratingForPaper"></li>
+        </ul>
+        {% if paper_rating|float() == 0 %}
+          <ul class="nav navbar-nav firstTimeRating">
+            <li>This paper hasn't been rated before.</li>
           </ul>
-          {% if paper_rating|float() == 0 %}
-            <ul class="nav navbar-nav firstTimeRating">
-              <li>This paper hasn't been rated before.</li>
-            </ul>
-          {% elif paper_rating|float() <= 1.5 %}
-            <ul class="nav navbar-nav firstTimeRating">
-              <li>This paper has been rated as Easy.</li>
-            </ul>
-          {% elif paper_rating|float() <= 2.5 %}
-            <ul class="nav navbar-nav firstTimeRating">
-              <li>This paper has been rated with Intermediate Level.</li>
-            </ul>
-          {% else %}
-            <ul class="nav navbar-nav firstTimeRating">
-              <li>This paper has been rated as Hard.</li>
-            </ul>
-          {% endif %}
-        </div
+        {% elif paper_rating|float() <= 1.5 %}
+          <ul class="nav navbar-nav firstTimeRating">
+            <li>This paper has been rated as Easy.</li>
+          </ul>
+        {% elif paper_rating|float() <= 2.5 %}
+          <ul class="nav navbar-nav firstTimeRating">
+            <li>This paper has been rated with Intermediate Level.</li>
+          </ul>
+        {% else %}
+          <ul class="nav navbar-nav firstTimeRating">
+            <li>This paper has been rated as Hard.</li>
+          </ul>
+        {% endif %}
+      </div>
+
+      <div class="overlay-bg">
+          <div class="overlay-content" style="width: 16.87%; height: 15%; margin-left: 25%; top: 6.9%">
+            <form >
+              <input required class="rb-rating" type="text" value="" title="">
+              <button type="submit" class="rating_btn btn btn-primary">Submit</button>
+              <button class="close-btn btn btn-primary">Close</button>
+            </form>
+          </div>
       </div>
     </nav>
 
@@ -189,7 +272,8 @@
           console.log("The document is ready!");
           // $('.gsc-search-box').hide();
           $('.loadingGif').hide();
-          $("#ratingForPaper").hide();
+          $("#ratingForPaperUL").hide();
+          // $("#ratingForPaper").hide();
           $('.gsc-search-button').hide();
           LoadGoogle();
           // $(document).ajaxStart(function() {
@@ -230,7 +314,7 @@
                       console.log('This is the rating for the paper ', jQuery.parseJSON(result)["success"]);
                       var rating = jQuery.parseJSON(result)["success"];
                       console.log('rating ', rating);
-                      debugger;
+                      // debugger;
                       $(".firstTimeRating").hide();
                       if (rating > 0 && rating <=1) {
                         $("#ratingForPaper").html("This paper has been rated easy");
@@ -251,6 +335,28 @@
                   }
               });
           });
+
+          $('.show-popup').click(function(event) {
+               event.preventDefault(); // disable normal link function so that it doesn't refresh the page
+               var docHeight = $(document).height(); //grab the height of the page
+               var scrollTop = $(window).scrollTop(); //grab the px value from the top of the page to where you're scrolling
+               $('.overlay-bg').show().css({'height' : docHeight}); //display your popup and set height to the page height
+              //  $('.overlay-content').css({'top': scrollTop+20+'px'}); //set the content 20px from the window top
+           });
+
+           // hide popup when user clicks on close button
+           $('.close-btn').click(function(){
+               $('.overlay-bg').hide(); // hide the overlay
+           });
+
+           // hides the popup if user clicks anywhere outside the container
+           $('.overlay-bg').click(function(){
+               $('.overlay-bg').hide();
+           })
+           // prevents the overlay from closing if user clicks inside the popup overlay
+           $('.overlay-content').click(function(){
+               return false;
+           });
       });
   </script>
 </html>

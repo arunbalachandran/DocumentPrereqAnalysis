@@ -59,9 +59,9 @@
             <input type="submit" class="btn btn-primary">
           </span>
         </form>
-        <p id="noConcepts">Sorry but the paper uploaded has no concepts.</p>
-        <p id="invalidFile">Invalid file uploaded. Please upload a different file.</p>
-        <p id="invalidTitle">Invalid title, please enter the title again.</p>
+        <p id="noConcepts" style="color:white;">Sorry but the paper uploaded has no concepts.</p>
+        <p id="invalidFile" style="color:white;">Invalid file uploaded. Please upload a different file.</p>
+        <p id="invalidTitle" style="color:white;">Invalid title, please enter the title again.</p>
       </div>
    </body>
    <script>
@@ -102,7 +102,7 @@
                       if (JSON.parse(result.responseText)['error'] === 'No concepts') {
                           console.log("No concepts found!");
                           // set some div
-                          $("#noConcepts").show();
+                          $("#noConcepts").show().fadeOut(4000);
                       }
                       else if (JSON.parse(result.responseText)['error'] === 'Invalid file') {
                           $("#invalidFile").show().fadeOut(4000);
