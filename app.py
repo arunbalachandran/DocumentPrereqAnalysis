@@ -13,13 +13,13 @@ import amazonscraper
 import urllib
 app = Flask(__name__)
 app.secret_key = os.environ['APP_SECRET']
-db_url = os.environ['CLEARDB_DATABASE_URL'].split('//')
+db_url = os.environ['MYSQL_DATABASE_URL'].split('//')
+# db_url = os.environ['CLEARDB_DATABASE_URL'].split('//')
 app.config['MYSQL_USER'] = db_url[1].split(':')[0]
 app.config['MYSQL_PASSWORD'] = db_url[1].split(':')[1].split('@')[0]
 app.config['MYSQL_DB'] = db_url[1].split(':')[1].split('@')[1].split('/')[1].split('?')[0]
 app.config['MYSQL_HOST'] = db_url[1].split(':')[1].split('@')[1].split('/')[0]
 app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'docs')
-print ('current working directory is ', os.getcwd())
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 ALLOWED_EXTENSIONS = set(['pdf'])
@@ -31,14 +31,14 @@ def allowed_file(filename):
 def get_user_credentials(emailid):
     conn = mysql.connection
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM usercred WHERE emailid = "' + emailid + '";')
+    cursor.execute('SELECT * FROM user_tab WHERE emailid = "' + emailid + '";')
     data = cursor.fetchall()
     return data
 
 def insert_user_credentials(emailid, hashed_password):
     conn = mysql.connection
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO usercred VALUES ("' + emailid + '", "' + hashed_password + '");')
+    cursor.execute('INSERT INTO user_tab VALUES ("' + emailid + '", "' + hashed_password + '");')
     conn.commit()
     print ('Added user to table.')
 
@@ -71,9 +71,10 @@ def show_signin():
         emailid, password = urllib.parse.unquote(emailid.split('=')[1]), urllib.parse.unquote(password.split('=')[1])
         data = get_user_credentials(emailid)
         if (len(data) > 0):
-            if (check_password_hash(str(data[0][1]), password)):
+            if (check_password_hash(str(data[0][2]), password)):
                 sys.stdout.write('The password matches correctly\n')
                 session['CURRENT_USER'] = emailid
+                session['CURRENT_USER_ID'] = data[0][0]
                 return json.dumps({'success': 'Successful login'}), 200, {'contentType': 'application/json;charset=UTF-8'}
             else:
                 sys.stdout.write("The password for the username doesn't match stored record\n")
@@ -100,7 +101,7 @@ def show_upload():
                 f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 print ('This save should be successful')
                 print (os.listdir(app.config['UPLOAD_FOLDER']), 'is the content of the path')
-                nodes = wikiprereq_finder.get_concepts(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                nodes = prereq_fetcher.get_concepts(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 if len(nodes) == 0:
                     flash("Sorry but the system couldn't find any concepts in the document.")
                     return redirect(request.url)
@@ -121,16 +122,17 @@ def node_clicked():
     if session.get('CURRENT_USER'):
         if request.method == 'POST':
             data = request.get_json()
-            clickedNode = data["clickdata"]
+            clickedNode = data["clickdata"][:-4]
             print ("The clicked node was " + str(clickedNode))
             # check if clicked node is not central node
-            if (clickedNode not in os.listdir(app.config['UPLOAD_FOLDER'])):
-                scholardata = scholar_user.get_query_html(str(clickedNode))
-                amazondata = amazonscraper.get_products(str(clickedNode))
-                print ('Successfully clicked the node')
-                return json.dumps({"data1": str(scholardata), "data2": str(amazondata)})
-            else:
-                return json.dumps({'error': True}), 200, {'ContentType': 'application/json'}
+            # if (clickedNode not in os.listdir(app.config['UPLOAD_FOLDER'])):
+            scholardata = scholar_user.get_query_html(str(clickedNode))
+            # amazondata = amazonscraper.get_products(str(clickedNode))
+            print ('Successfully clicked the node')
+            # return json.dumps({"data1": str(scholardata), "data2": str(amazondata)})
+            return json.dumps({"data1": str(scholardata), "data2": 'Test Data'})
+            # else:
+            #     return json.dumps({'error': True}), 200, {'ContentType': 'application/json'}
 
 if __name__ == '__main__':
     app.run()
