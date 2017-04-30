@@ -11,6 +11,8 @@ import scholar_user
 import os
 import amazonscraper
 import urllib
+from pdfminer.pdfparser import PDFParser
+from pdfminer.pdfparser import PDFDocument
 app = Flask(__name__)
 app.secret_key = os.environ['APP_SECRET']
 db_url = os.environ['MYSQL_DATABASE_URL'].split('//')
@@ -31,14 +33,14 @@ def allowed_file(filename):
 def get_user_credentials(emailid):
     conn = mysql.connection
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM user_tab WHERE emailid = "' + emailid + '";')
+    cursor.execute('SELECT * FROM user_tab  WHERE user_name = "' + emailid + '";')
     data = cursor.fetchall()
     return data
 
 def insert_user_credentials(emailid, hashed_password):
     conn = mysql.connection
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO user_tab VALUES ("' + emailid + '", "' + hashed_password + '");')
+    cursor.execute('INSERT INTO user_tab (user_name, password) VALUES ("' + emailid + '", "' + hashed_password + '");')
     conn.commit()
     print ('Added user to table.')
 
@@ -75,6 +77,7 @@ def show_signin():
                 sys.stdout.write('The password matches correctly\n')
                 session['CURRENT_USER'] = emailid
                 session['CURRENT_USER_ID'] = data[0][0]
+                session['CURRENT_USER_FOLDER'] = os.path.join(app.config['UPLOAD_FOLDER'], session['CURRENT_USER_ID'])
                 return json.dumps({'success': 'Successful login'}), 200, {'contentType': 'application/json;charset=UTF-8'}
             else:
                 sys.stdout.write("The password for the username doesn't match stored record\n")
@@ -88,28 +91,42 @@ def show_upload():
         if request.method == 'GET':
             return render_template('upload.html')
         elif request.method == 'POST':
+            
+
+@app.route('/titleCheck', methods=['POST'])
+def title_check():
+    if session.get('CURRENT_USER'):
+        if request.method == 'POST':
             if 'file' not in request.files:
                 flash('No file part.')
                 return redirect(request.url)
             f = request.files['file']
             print ('is allowed file name', allowed_file(f.filename))
             if f.filename == '' or not allowed_file(f.filename):
-                flash("Invalid file or none selected! Please select a file or check if the file is a 'pdf' before pressing the submit button.")
-                return redirect(request.url)
+                return json.dumps({'error': 'Invalid file'}), 400, {'ContentType': 'application/json'}
             else:
                 filename = secure_filename(f.filename)
-                f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                print ('This save should be successful')
-                print (os.listdir(app.config['UPLOAD_FOLDER']), 'is the content of the path')
-                nodes = prereq_fetcher.get_concepts(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                f.save(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+                fp = open(os.path.join(session['CURRENT_USER_FOLDER'], filename), 'rb')
+                parser = PDFParser(fp)
+                doc = PDFDocument(parser)
+                parser.set_document(doc)
+                doc.set_parser(parser)
+                if len(doc.info) > 0:
+                    if doc.info[0].get('Title'):
+                        title = doc.info[0]['Title']
+                        session['CURRENT_PAPER_TITLE'] = title
+                    else:
+                        return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
+                else:
+                    return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
+                nodes = prereq_fetcher.get_concepts(session['CURRENT_USER_FOLDER'], filename))
                 if len(nodes) == 0:
-                    flash("Sorry but the system couldn't find any concepts in the document.")
-                    return redirect(request.url)
-                print ('The nodes are ', nodes)
+                    return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
                 # add a central node
                 add_central_node = {}
                 add_central_node[filename] = nodes
-                return render_template('graph_page.html', nodes=add_central_node)
+                return render_template('graph_page.html', nodes=add_central_node, page_ranking=0)
 
 @app.route('/logout', methods=['GET'])
 def show_logout():

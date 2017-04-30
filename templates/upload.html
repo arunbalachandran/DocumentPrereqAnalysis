@@ -56,6 +56,7 @@
           <input type="submit">
         </form>
         <p id="noConcepts">Sorry but the paper uploaded has no concepts.</p>
+        <p id="invalidFile">Invalid file uploaded. Please upload a different file.</p>
         <p id="invalidTitle">Invalid title, please enter the title again.</p>
       </div>
    </body>
@@ -87,7 +88,7 @@
                   processData: false,
                   async: true,
                   success: function(result) {
-                      console.log('Successfully sent file for title check.');
+                      console.log('Successfully checked file for existence of title.');
                       // debugger;
                       window.location.href = "{{ url_for('show_home') }}";
                   },
@@ -98,6 +99,9 @@
                           console.log("No concepts found!");
                           // set some div
                           $("#noConcepts").show();
+                      }
+                      else if (JSON.parse(result.responseText)['error'] === 'Invalid file') {
+                          $("#invalidFile").show();
                       }
                       else {
                           $("#titleForm").show();
