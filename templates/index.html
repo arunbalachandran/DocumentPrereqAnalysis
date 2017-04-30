@@ -12,14 +12,13 @@
     <link href="{{ url_for('static', filename='css/cover.css') }}" rel="stylesheet">
   </head>
   <body>
-    <div class="site-wrapper" style="background-image: url('static/img/dcpa.jpg');" id="backgroundDiv">
+    <div class="site-wrapper" style="background-image: url('static/img/dcpadim.jpg');" id="backgroundDiv">
       <div class="site-wrapper-inner">
         <div class="cover-container">
           <div class="masthead clearfix">
             <div class="inner">
               <h3 class="masthead-brand text-div">The DCPA</h3>
               <nav class="nav nav-masthead" style="margin-top: 3.5%">
-                <a class="nav-link active text-div" href="#">Home</a>
                 <a class="nav-link active text-div" href="{{ url_for('show_signin') }}">Sign In</a>
                 <a class="nav-link active text-div" href="{{ url_for('show_registration') }}">Register</a>
               </nav>
@@ -28,30 +27,19 @@
 
           <div class="inner cover">
             <h1 class="cover-heading text-div">Go through research papers faster.</h1>
-            <p class="lead">Upload your research paper and get a comprehensive list of the various important topics covered in the research paper. Also, get a list of various topics that you need to learn to understand the paper completely.</p>
+            <p class="lead">Upload your research paper and get a comprehensive list of the important topics covered in the research paper.</p>
             <p class="lead text-div">
-              <a href="#" class="btn btn-lg btn-secondary">Learn more</a>
+              <a href="{{ url_for('show_signin') }}" class="btn btn-lg btn-secondary">Learn more</a>
             </p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <!-- Latest compiled and minified JavaScript -->
-    <!-- Latest compiled and minified JavaScript -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
     crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src=" {{url_for('static', filename='js/ie10-viewport-bug-workaround.js.download')}}"></script>
-    <script>
-      $(document).ready(function() {
-        $("#backgroundDiv").css({ opacity: 0.9 });
-        $(".text-div").css({ opacity: 1 });
-      });
-    </script>
 </body>
 </html>

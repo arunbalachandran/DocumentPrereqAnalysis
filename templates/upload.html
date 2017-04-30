@@ -23,40 +23,41 @@
           position: absolute;
       }
    </style>
-   <body  style="background-image: url('static/img/knowledgebook.jpg');" id="backgroundDiv">
+   <body  style="background-image: url('static/img/knowledgebookdimblur.jpg');" id="backgroundDiv">
      <nav class="navbar navbar-default">
        <div class="navbar-header">
          <a href="#" class="navbar-brand">Document Prerequisite Classifier</a>
        </div>
        <div class="navbar-collapse collapse" id="navbar">
-         <ul class="nav navbar-nav">
-           <li><a href="{{ url_for('show_library') }}">Show Library</a></li>
+         <ul class="nav navbar-nav" style="float: right;">
+           <li><a href="{{ url_for('show_logout') }}">Logout</a></li>
          </ul>
-         <ul class="nav navbar-nav">
-           <li><a href="{{ url_for('show_logout') }}" style="margin-left: 1500%">Logout</a></li>
+         <ul class="nav navbar-nav" style="float: right;">
+           <li><a href="{{ url_for('show_library') }}">Show Library</a></li>
          </ul>
        </div>
      </nav>
 
       <div class="container" style="padding-top: 8%;">
-        <h1>Hello, start by uploading a research paper that you want to look into for prerequisites.</h1>
+        <h1 style="color: white;">Hello, start by uploading a research paper that you want to look into for prerequisites.</h1>
          <form class="bs-example bs-example-form" method='post' enctype=multipart/form-data role="form" id="uploadForm">
             <div class="form-group">
                <div class="input-group col-xs-12">
-                  <input type="file" name="file" class="file">
-                  <input type="text" class="form-control input-lg" disabled placeholder="Upload Your Paper">
                   <span class="input-group-btn">
-                  <button class="browse btn btn-primary input-lg" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button>
+                    <input type="file" name="file" class="file" style="display: inline;">
+                    <input type="text" class="form-control input-lg" disabled placeholder="Upload Your Paper" style="width: 86%;">
+                    <button class="browse btn btn-primary input-lg" type="button"><i class="glyphicon glyphicon-search"></i>Browse</button>
+                    <input type="submit" value='Upload' id="btnUpload" class="btn btn-primary" style="height: 3.2em;"/>
                   </span>
                </div>
             </div>
-            <div class="process_button">
-               <input type="submit" value='Upload' id="btnUpload" class="btn btn-primary" style="width: 100%;"/>
-            </div>
         </form>
-        <form method="POST" id="titleForm">
-          <input type="text" name="titleText" placeholder="We can't seem to detect the paper title. Please copy paste the title of the paper.">
-          <input type="submit">
+        <h3 id="noTitle" style="color: white;">It seems that we can't find the title for the paper. Could you please copy paste it into the box below and press submit.</h3>
+        <form method="POST" id="titleForm" style="width: 92%; display: inline;">
+          <span>
+            <input type="text" class="form-control" name="titleText" placeholder="Paste title here." style="width: 93%; display: inline;">
+            <input type="submit" class="btn btn-primary">
+          </span>
         </form>
         <p id="noConcepts">Sorry but the paper uploaded has no concepts.</p>
         <p id="invalidFile">Invalid file uploaded. Please upload a different file.</p>
@@ -65,11 +66,10 @@
    </body>
    <script>
       $(document).ready(function() {
+          $("#noTitle").hide();
           $("#titleForm").hide();
           $("#invalidFile").hide();
           $("#invalidTitle").hide();
-          $("#backgroundDiv").css({ opacity: 0.9 });
-          $(".text-div").css({ opacity: 1 });
           $("#noConcepts").hide();
           $(document).on('click', '.browse', function() {
               var file = $(this).parent().parent().parent().find('.file');
@@ -108,6 +108,7 @@
                           $("#invalidFile").show().fadeOut(4000);
                       }
                       else {
+                          $("#noTitle").show();
                           $("#titleForm").show();
                       }
                   }

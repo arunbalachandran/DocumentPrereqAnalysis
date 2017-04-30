@@ -192,7 +192,7 @@ def title_check():
                     return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
                     # add a central node
                 add_central_node = {}
-                add_central_node[filename] = nodes
+                add_central_node[filename[:-4]] = nodes
                 session['CURRENT_PAPER_NODES'] = add_central_node
                 fp = open(os.path.join(session['CURRENT_USER_FOLDER'], filename), 'rb')
                 parser = PDFParser(fp)
@@ -272,7 +272,7 @@ def node_clicked():
     if session.get('CURRENT_USER'):
         if request.method == 'POST':
             data = request.get_json('data')
-            clickedNode = data["clickdata"][:-4]
+            clickedNode = data["clickdata"]
             print ("The clicked node was " + str(clickedNode))
             # check if clicked node is not central node
             # if (clickedNode not in os.listdir(app.config['UPLOAD_FOLDER'])):
