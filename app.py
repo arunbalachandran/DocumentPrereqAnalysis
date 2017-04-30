@@ -1,4 +1,4 @@
-from waitress import serve
+# from waitress import serve
 from flask import Flask, request, redirect, url_for, render_template, flash, session
 from werkzeug.utils import secure_filename
 from werkzeug import generate_password_hash, check_password_hash
@@ -40,7 +40,7 @@ def insert_user_credentials(emailid, hashed_password):
     cursor = conn.cursor()
     cursor.execute('INSERT INTO usercred VALUES ("' + emailid + '", "' + hashed_password + '");')
     conn.commit()
-    print ('Added the user to the table.')
+    print ('Added user to table.')
 
 @app.route('/', methods=['GET'])
 def show_index():
@@ -133,6 +133,6 @@ def node_clicked():
                 return json.dumps({'error': True}), 200, {'ContentType': 'application/json'}
 
 if __name__ == '__main__':
-    # app.run()
-    print ('Port that should set is', os.environ.get('PORT'))
-    serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)
+    app.run()
+    # print ('Port that should set is', os.environ.get('PORT'))
+    # serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)

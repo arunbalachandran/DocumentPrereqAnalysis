@@ -23,7 +23,9 @@
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/starter-template.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/amazonscraper.css') }}">
-
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/star-rating.css') }}" media="all">
+    <script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/star-rating.js') }}"></script>
     <script>  // use this in the below binding script
       var graphNodes = {{ nodes|tojson }};
       function LoadGoogle()
@@ -66,7 +68,6 @@
           }
       }
     </script>
-    <script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {   // before the window resize
@@ -94,10 +95,36 @@
       <div class="navbar-header">
         <a href="#" class="navbar-brand">Document Prerequisite Classifier</a>
       </div>
+      <form>
+          <input required class="rb-rating" type="text" value="" title="">
+          <button type="submit" class="btn btn-primary" id="ratingButton">Submit Rating</button>
+      </form>
       <div class="navbar-collapse collapse" id="navbar">
         <ul class="nav navbar-nav">
           <li><a href="{{ url_for('show_logout') }}" style="margin-left: 1500%">Logout</a></li>
         </ul>
+        <div class="rating_div">
+          <ul class="nav navbar-nav">
+            <li id="ratingForPaper"></li>
+          </ul>
+          {% if paper_rating|float() == 0 %}
+            <ul class="nav navbar-nav firstTimeRating">
+              <li>This paper hasn't been rated before.</li>
+            </ul>
+          {% elif paper_rating|float() <= 1.5 %}
+            <ul class="nav navbar-nav firstTimeRating">
+              <li>This paper has been rated as Easy.</li>
+            </ul>
+          {% elif paper_rating|float() <= 2.5 %}
+            <ul class="nav navbar-nav firstTimeRating">
+              <li>This paper has been rated with Intermediate Level.</li>
+            </ul>
+          {% else %}
+            <ul class="nav navbar-nav firstTimeRating">
+              <li>This paper has been rated as Hard.</li>
+            </ul>
+          {% endif %}
+        </div
       </div>
     </nav>
 
@@ -115,7 +142,6 @@
           <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"> </script>
           <script type="text/javascript" src="{{ url_for('static', filename='js/network_serialize.js') }}"> </script>
           <script type="text/javascript" src="{{ url_for('static', filename='js/bindings.js') }}"> </script>
-          <!-- <script type="text/javascript" src="{{ url_for('static', filename='js/commafield.js') }}"> </script> -->
           <script type="text/javascript" src="{{ url_for('static', filename='js/modals.js') }}"> </script>
           <script type="text/javascript" src="{{ url_for('static', filename='js/progress.js') }}"> </script>
           <script>
@@ -128,7 +154,7 @@
         <div class="col-md-3 gwd-div-zptc">  <!-- need to make this height variable -->
           <script>
             (function() {
-              var cx = '009466571335008187859:dnoy-cwjbye';
+              var cx = '{{ googlecx }}';
               var gcse = document.createElement('script');
               gcse.type = 'text/javascript';
               gcse.async = true;
@@ -160,11 +186,68 @@
           console.log("The document is ready!");
           // $('.gsc-search-box').hide();
           $('.loadingGif').hide();
+          $("#ratingForPaper").hide();
           $('.gsc-search-button').hide();
           LoadGoogle();
           // $(document).ajaxStart(function() {
               // $('.loadingGif').show();
           // })
+          $('.rb-rating').rating({
+              'showCaption': true,
+              'stars': '3',
+              'min': '0',
+              'max': '3',
+              'step': '1',
+              'size': 'xs',
+              'starCaptions': {0: 'Assign Rating', 1: 'Easy', 2: 'Intermediate', 3: 'Hard'}
+          });
+          $('.glyphicon-minus-sign').css('display','none');
+          $('.label-default').html('Assign Rating')
+          $('#ratingButton').click(function(event) {
+              event.preventDefault();
+              var difficulty_level = $('.label').text();
+              var json_data = '';
+              console.log('This is diff ', difficulty_level);
+              if (difficulty_level === 'Easy') {
+                  json_data = {'value': '1'};
+              }
+              else if (difficulty_level == 'Hard') {
+                  json_data = {'value': '3'};
+              }
+              else {
+                  json_data = {'value': '2'}
+              }
+              // Call to backend def
+              $.ajax({
+                  type: "POST",
+                  url: "{{ url_for('paper_rating') }}",
+                  data : JSON.stringify(json_data),
+                  contentType: "application/json;charset=UTF-8",
+                  success: function(result) {
+                      console.log('This is the rating for the paper ', jQuery.parseJSON(result)["success"]);
+                      var rating = jQuery.parseJSON(result)["success"];
+                      console.log('rating ', rating);
+                      debugger;
+                      $(".firstTimeRating").hide();
+                      if (rating > 0 && rating <=1) {
+                        $("#ratingForPaper").html("This paper has been rated easy");
+                        $("#ratingForPaper").show();
+                          // $('.filled-stars').width(33.3333);
+                      } else if (rating > 1 && rating <= 2) {
+                        $("#ratingForPaper").html("This paper has been rated intermediate");
+                        $("#ratingForPaper").show();
+                          // $('.filled-stars').width(66.6667);
+                      } else {
+                        $("#ratingForPaper").html("This paper has been rated hard.");
+                        $("#ratingForPaper").show();
+                          // $('.filled-stars').width(100);
+                      }
+                  },
+                  error: function(error) {
+                      console.log("There seems to be an error in the data you passed!");
+                  }
+              });
+          });
       });
   </script>
 </html>

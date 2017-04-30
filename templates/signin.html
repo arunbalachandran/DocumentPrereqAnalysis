@@ -36,7 +36,7 @@
     </script>
   </head>
 
-  <body>
+  <body style="background-image: url('static/img/typewriter.jpg');" id="backgroundDiv">
     <div class="container">
       <form class="form-signin" id="signinForm" method="post" action="#">
         <h2 class="form-signin-heading">Please sign in</h2>
@@ -53,4 +53,10 @@
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="{{ url_for('static', filename='js/ie10-viewport-bug-workaround.js.download') }}"></script>
   </body>
+  <script>
+    $(document).ready(function() {
+      $("#backgroundDiv").css({ opacity: 0.9 });
+      // $(".text-div").css({ opacity: 1 });
+    });
+  </script>
 </html>

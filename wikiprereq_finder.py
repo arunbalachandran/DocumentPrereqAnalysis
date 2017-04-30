@@ -3,7 +3,7 @@ import subprocess, shlex
 import sys
 import os
 
-with open('title_links.json') as title_link_dict:
+with open('title_links_noenglish.json') as title_link_dict:
     title_links = json.load(title_link_dict)
 system_encoding = sys.stdout.encoding
 
@@ -46,42 +46,7 @@ def recursive_search(dictionary, search_key):
             return True
     return False
 
-def get_concepts(filepath):
-    # make this platform independent
-    print ('filepath is ', filepath)
-    filename = os.path.basename(filepath)
-    original_path = os.getcwd()
-    os.chdir(os.path.abspath(os.path.join(filepath, os.pardir)))
-    print ('changed directory to', os.getcwd())
-    if sys.platform == 'win32':
-        cmd = 'gswin64c -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + filename + ' -c quit'
-        proc = subprocess.Popen(shlex.split(cmd, posix=False), stdout=subprocess.PIPE)  # don't need the posix option if the filesystem is not windows
-    else:
-        cmd = 'gs -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + filename + ' -c quit'
-        proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)  # don't need the posix option if the filesystem is not windows
-    pdftext, stderr = proc.communicate()
-    pdftext = str(pdftext).lower()
-    print ('command is', cmd)
-    os.chdir(original_path)
-    print ('changed back to', os.getcwd())
-    # print ('error is ', str(stderr))
-    # print ('keywords are ', str(pdftext))
-    # print ('keywords are', pdftext)
-    # os.system(cmd)
-    # with open('output.txt') as fp:
-    #    keywords = fp.read().split()
-    # future scope -> check bigrams and trigrams and also improve simple word checking using search library
-    # how do I reduce the number of concepts? or maybe implement a hide functionality for nodes
-    concepts_with_count = []  # need to refine this stupid condition
-    for concept in title_links:
-        if ' '+concept.lower()+' ' in pdftext:
-            concepts_with_count.append((concept, pdftext.count(concept.lower())))
-        elif ' '+concept.replace('_', ' ').lower()+' ' in pdftext:
-            concepts_with_count.append((concept, pdftext.count(concept.replace('_', ' ').lower())))
-    # concepts = [concept for concept in title_links if concept.lower() in pdftext or ' '.join(concept.split('_')).lower() in pdftext]
-    concepts = [concept[0] for concept in concepts_with_count if concept[1] > 2]    # keep this count variable for experiment
-    # remove unnecessary concepts
-    concepts = [concept for concept in concepts if concept not in ['(', ')', '{', '}', '[', ']']]
+def get_prereq_concept(concepts):
     concept_prereq = {}
     if (concepts != []):
         for concept in concepts:    # find prerequisites for each concept
@@ -101,8 +66,54 @@ def get_concepts(filepath):
         return concept_prereq
     return concepts  # if none exist
 
+def get_concepts(filepath):
+    # make this platform independent
+    print ('filepath is ', filepath)
+    filename = os.path.basename(filepath)
+    original_path = os.getcwd()
+    os.chdir(os.path.abspath(os.path.join(filepath, os.pardir)))
+    print ('changed directory to', os.getcwd())
+    if sys.platform == 'win32':
+        cmd = 'gswin64c -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + filename + ' -c quit'
+        proc = subprocess.Popen(shlex.split(cmd, posix=False), stdout=subprocess.PIPE)  # don't need the posix option if the filesystem is not windows
+    else:
+        cmd = 'gs -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + filename + ' -c quit'
+        proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)  # don't need the posix option if the filesystem is not windows
+    pdftext, stderr = proc.communicate()
+    pdftext = str(pdftext).lower()
+    print ('command is', cmd)
+    os.chdir(original_path)
+    print ('changed back to', os.getcwd())
+    # future scope -> check bigrams and trigrams and also improve simple word checking using search library
+    # how do I reduce the number of concepts? or maybe implement a hide functionality for nodes
+    concepts_with_count = []  # need to refine this stupid condition
+    for concept in title_links:
+        if ' '+concept.lower()+' ' in pdftext:
+            concepts_with_count.append((concept, pdftext.count(concept.lower())))
+        elif ' '+concept.replace('_', ' ').lower()+' ' in pdftext:
+            concepts_with_count.append((concept, pdftext.count(concept.replace('_', ' ').lower())))
+    # concepts = [concept for concept in title_links if concept.lower() in pdftext or ' '.join(concept.split('_')).lower() in pdftext]
+    concepts = [concept[0] for concept in concepts_with_count if concept[1] > 2]    # keep this count variable for experiment
+    # remove unnecessary concepts
+    concepts = [concept for concept in concepts if concept not in ['(', ')', '{', '}', '[', ']']]
+    concept_prereq = {}
+    if (concepts != []):
+        for concept in concepts:    # find prerequisites for each concept
+            concept_prereq[concept] = {}
+        sys.stdout.write('\n'+str(concept_prereq)+'\n')
+        # simplifying assumption that the links that you have in your page contain the thing that links to you
+        recursive_concept_fill(concept_prereq, depth=0, all_concepts=concepts) # depth limited recursive concept fetch
+        deletion_list = []
+        for search_key in concept_prereq:
+            if recursive_search(concept_prereq, search_key):
+                deletion_list.append(search_key)
+        for key in deletion_list:
+            del(concept_prereq[key])
+        return concept_prereq
+    return concepts  # if none exist
+
 def recursive_concept_fill(concept_dict, depth, all_concepts):
-    if (depth >= 5):
+    if (depth >= 7):
         return
     for concept in concept_dict:
         # max concept is the prerequisite for that concept
@@ -113,7 +124,6 @@ def recursive_concept_fill(concept_dict, depth, all_concepts):
             if list_articles != []:
                 max_concept = max(list_articles , key=lambda x: x[0])
                 # need to verify the pruning logic
-                # if (max_concept and max_concept[1] not in str(all_concepts)):
                 if (max_concept):
                     all_concepts.append(max_concept[1])   # unique concept that doesn't exist anywhere in the dicitonary
                     concept_dict[concept][max_concept[1]] = {}

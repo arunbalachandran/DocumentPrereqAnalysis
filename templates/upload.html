@@ -23,7 +23,7 @@
           position: absolute;
       }
    </style>
-   <body>
+   <body  style="background-image: url('static/img/knowledgebook.jpg');" id="backgroundDiv">
      <nav class="navbar navbar-default">
        <div class="navbar-header">
          <a href="#" class="navbar-brand">Document Prerequisite Classifier</a>
@@ -37,7 +37,7 @@
 
       <div class="container" style="padding-top: 8%;">
         <h1>Hello, start by uploading a research paper that you want to look into for prerequisites.</h1>
-         <form class = "bs-example bs-example-form" method='post' enctype=multipart/form-data role="form" id="uploadForm">
+         <form class="bs-example bs-example-form" method='post' enctype=multipart/form-data role="form" id="uploadForm">
             <div class="form-group">
                <div class="input-group col-xs-12">
                   <input type="file" name="file" class="file">
@@ -51,24 +51,79 @@
                <input type="submit" value='Upload' id="btnUpload" class="btn btn-primary" style="width: 100%;"/>
             </div>
         </form>
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for message in messages %}
-              <p>{{ message }}</p>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
+        <form method="POST" id="titleForm">
+          <input type="text" name="titleText" placeholder="We can't seem to detect the paper title. Please copy paste the title of the paper.">
+          <input type="submit">
+        </form>
+        <p id="noConcepts">Sorry but the paper uploaded has no concepts.</p>
+        <p id="invalidTitle">Invalid title, please enter the title again.</p>
       </div>
    </body>
    <script>
       $(document).ready(function() {
+          $("#titleForm").hide();
+          $("#invalidTitle").hide();
+          $("#backgroundDiv").css({ opacity: 0.9 });
+          $(".text-div").css({ opacity: 1 });
+          $("#noConcepts").hide();
           $(document).on('click', '.browse', function() {
               var file = $(this).parent().parent().parent().find('.file');
               file.trigger('click');
           });
+
           $(document).on('change', '.file', function() {
               $(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
           });
+
+          $("#uploadForm").submit(function(event) {
+              event.preventDefault();
+              var formData = new FormData($("#uploadForm")[0]);
+              $.ajax({
+                  type: "POST",
+                  url: "{{ url_for('title_check') }}",
+                  data: formData,
+                  contentType: false,
+                  cache: false,
+                  processData: false,
+                  async: true,
+                  success: function(result) {
+                      console.log('Successfully sent file for title check.');
+                      // debugger;
+                      window.location.href = "{{ url_for('show_home') }}";
+                  },
+                  error: function(result) {
+                      console.log("Data is" + result)
+                      // debugger;
+                      if (JSON.parse(result.responseText)['error'] === 'No concepts') {
+                          console.log("No concepts found!");
+                          // set some div
+                          $("#noConcepts").show();
+                      }
+                      else {
+                          $("#titleForm").show();
+                      }
+                  }
+              });
+            });
+
+          $("#titleForm").submit(function(event) {
+              event.preventDefault();
+              $.ajax({
+                url: "{{ url_for('show_upload') }}",
+                data: JSON.stringify($("#titleForm").serialize()),
+                type: "POST",
+                contentType: 'application/json;charset=UTF-8',
+                success: function(result) {
+                    console.log("Successfully sent the server a request!");
+                    console.log(result);
+                    window.location.href = "{{ url_for('show_home') }}";
+                },
+                error: function(result) {
+                    $("#invalidTitle").show().fadeOut(4000);
+                    console.log(result.responseText);
+                }
+              });
+         });
       });
    </script>
 </hmtl>
