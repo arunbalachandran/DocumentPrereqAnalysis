@@ -174,6 +174,8 @@ def show_upload():
             title = urllib.parse.parse_qs(title)['titleText'][0]
             print ('title is', title)
             session['CURRENT_PAPER_TITLE'] = title
+            filename = session['CURRENT_FILENAME']
+            session.pop('CURRENT_FILENAME')
             session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
             nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
             print ('Current detected nodes', nodes)
@@ -201,6 +203,7 @@ def title_check():
                 return json.dumps({'error': 'Invalid file'}), 400, {'ContentType': 'application/json'}
             else:
                 filename = secure_filename(f.filename)
+                session['CURRENT_FILENAME'] = filename
                 f.save(os.path.join(session['CURRENT_USER_FOLDER'], filename))
                 fp = open(os.path.join(session['CURRENT_USER_FOLDER'], filename), 'rb')
                 parser = PDFParser(fp)
@@ -234,7 +237,7 @@ def show_home():
     if session.get('CURRENT_USER'):
         if request.method == 'GET':
             current_paper_rating = get_paper_rating()
-            current_nodes = get_nodes()
+            current_nodes = json.loads(get_nodes())
             # insert_if_not_file()
             return render_template('graph_page.html', nodes=current_nodes, googlecx=app.config['GOOGLE_KEY'], paper_rating=current_paper_rating)
 
@@ -250,6 +253,7 @@ def show_pdf():
     if session.get('CURRENT_USER'):
         if request.method == 'GET':
             show_path = get_path_from_title(session['SHOW_PDF'])
+            session.pop('SHOW_PDF')
             return send_file(show_path)
         if request.method == 'POST':
             data = request.get_json()
@@ -265,8 +269,8 @@ def show_prereq():
             data = request.get_json()
             session['CURRENT_PAPER_TITLE'] = data
             session['CURRENT_PAPER_PATH'] = get_path_from_title(data)
-            session['CURRENT_PAPER_ABSTRACT'], prereqs = get_abstract_nodes_from_title()
-            session['CURRENT_PAPER_NODES'] = json.loads(prereqs)
+            # session['CURRENT_PAPER_ABSTRACT'], prereqs = get_abstract_nodes_from_title()
+            # session['CURRENT_PAPER_NODES'] = json.loads(prereqs)
             return json.dumps({'success': 'Successfully retrieved paper data'}), 200, {'contentType': 'application/json'}
 
 @app.route('/paperRating', methods=['POST'])
@@ -292,15 +296,19 @@ def node_clicked():
             clickedNode = data["clickdata"]
             print ("The clicked node was " + str(clickedNode))
             print ('Successfully clicked the node')
-            scholardata = scholar_user.get_query_html(str(clickedNode))
+            try:
+                scholardata = scholar_user.get_query_html(str(clickedNode))
+            except:
+                scholardata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Couldn't get data from Google Scholar.</div>'''
             amazon_div_string = '''<div style="margin-top: 20vh;text-align: center;">Click concepts for amazon recommendations.</div>'''
             if (clickedNode+'.pdf' in os.listdir(session['CURRENT_USER_FOLDER'])):
                 return json.dumps({'data1': str(scholardata), 'data2': amazon_div_string})
             else:
-                amazondata = amazonscraper.get_products(str(clickedNode))
+                try:
+                    amazondata = amazonscraper.get_products(str(clickedNode))
+                except:
+                    amazondata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Amazon's acting weird again.</div>'''
                 return json.dumps({'data1': str(scholardata), 'data2': str(amazondata)})
-            # else:
-            #     return json.dumps({'error': True}), 200, {'ContentType': 'application/json'}
 
 if __name__ == '__main__':
     # app.run()

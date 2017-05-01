@@ -26,13 +26,13 @@ def get_concepts(filepath):
     abstract_text, abstract_index = 'No abstract found.', ''
     sentences = pdftext.split('\n')
     for index, sentence in enumerate(sentences):
-        if 'abstract' in sentence:
+        if 'abstract' in sentence.split():
             abstract_index = index
     temp_list = []
     if abstract_index:
         for sentence in sentences[abstract_index+1:]:
             temp_list.append(sentence)
-            if 'introduction' in sentence:
+            if '1. introduction' in sentence:
                 break
         abstract_text = ' '.join(temp_list[:-1])
         abstract_text = abstract_text.strip().title()
@@ -44,5 +44,7 @@ def get_concepts(filepath):
     for q in prereq_dict:
         if search_two_thirds.search(pdftext, q):
             concept_dict[q] = prereq_dict[q]
+    if len(abstract_text) > 1500:
+        abstract_text = abstract_text[:1500] + ' ...'
 
     return (concept_dict, abstract_text)

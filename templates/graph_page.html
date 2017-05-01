@@ -62,6 +62,7 @@
                 },
                 error: function (data) {
                     console.log("failure case!");
+                    $("#amazonLoaderGif").fadeOut("fast");
                 }
               });
           }
@@ -92,14 +93,14 @@
 
       .firstTimeRating {
         margin-top: 1%;
-        margin-left: 17%;
+        margin-left: 15%;
         font-weight: bold;
         color: darkgrey;
       }
 
       #ratingForPaperUL {
         margin-top: 1%;
-        margin-left: 24%;
+        margin-left: 15%;
         /*width: 150%;*/
         font-weight: bold;
         color: darkgrey;
