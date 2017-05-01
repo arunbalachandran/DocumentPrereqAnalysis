@@ -10,6 +10,7 @@ query = scholar.SearchScholarQuery()
 def get_query_html(query_txt):
     query.set_words(query_txt)
     html_output = querier.send_query(query)
+    print ('query response is', html_output)
     # html_txt = open('test.html').read()
     soup = BeautifulSoup(html_output, "html.parser")
     # get rid of unnecessary divs
@@ -117,7 +118,7 @@ def get_query_html(query_txt):
     list_save_divs = soup.findAll("a", {"class": "gs_nvi"})
     for div in list_save_divs:
         div.decompose()
-        
+
     return str(soup)
 
 # print ('Does div class still exist', soup.findAll('div', {'class': 'gs_rs'}))

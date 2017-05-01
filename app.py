@@ -1,4 +1,4 @@
-from waitress import serve
+# from waitress import serve
 from flask import Flask, request, redirect, url_for, render_template, flash, session, send_file
 from werkzeug.utils import secure_filename
 from werkzeug import generate_password_hash, check_password_hash
@@ -175,7 +175,6 @@ def show_upload():
             print ('title is', title)
             session['CURRENT_PAPER_TITLE'] = title
             filename = session['CURRENT_FILENAME']
-            session.pop('CURRENT_FILENAME')
             session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
             nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
             print ('Current detected nodes', nodes)
@@ -203,13 +202,19 @@ def title_check():
                 return json.dumps({'error': 'Invalid file'}), 400, {'ContentType': 'application/json'}
             else:
                 filename = secure_filename(f.filename)
+                print ('current filename is', filename)
                 session['CURRENT_FILENAME'] = filename
                 f.save(os.path.join(session['CURRENT_USER_FOLDER'], filename))
                 fp = open(os.path.join(session['CURRENT_USER_FOLDER'], filename), 'rb')
                 parser = PDFParser(fp)
                 doc = PDFDocument(parser)
                 parser.set_document(doc)
-                doc.set_parser(parser)
+                try:
+                    print ('Trying to set parser')
+                    doc.set_parser(parser)
+                except:
+                    print ('Couldnt set parser')
+                    return json.dumps({'error': 'Invalid file'}), 400, {'ContentType': 'application/json'}
                 if len(doc.info) > 0:
                     if doc.info[0].get('Title'):
                         title = doc.info[0]['Title']
@@ -311,6 +316,6 @@ def node_clicked():
                 return json.dumps({'data1': str(scholardata), 'data2': str(amazondata)})
 
 if __name__ == '__main__':
-    # app.run()
-    print ('Port that should set is', os.environ.get('PORT'))
-    serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)
+    app.run()
+    # print ('Port that should set is', os.environ.get('PORT'))
+    # serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)
