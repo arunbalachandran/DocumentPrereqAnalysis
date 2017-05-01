@@ -1,4 +1,4 @@
-# from waitress import serve
+from waitress import serve
 from flask import Flask, request, redirect, url_for, render_template, flash, session, send_file
 from werkzeug.utils import secure_filename
 from werkzeug import generate_password_hash, check_password_hash
@@ -316,6 +316,6 @@ def node_clicked():
                 return json.dumps({'data1': str(scholardata), 'data2': str(amazondata)})
 
 if __name__ == '__main__':
-    app.run()
-    # print ('Port that should set is', os.environ.get('PORT'))
-    # serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)
+    # app.run()
+    print ('Port that should set is', os.environ.get('PORT'))
+    serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)
