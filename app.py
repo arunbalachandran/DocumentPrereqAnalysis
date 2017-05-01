@@ -1,4 +1,4 @@
-from waitress import serve
+# from waitress import serve
 from flask import Flask, request, redirect, url_for, render_template, flash, session, send_file
 from werkzeug.utils import secure_filename
 from werkzeug import generate_password_hash, check_password_hash
@@ -13,6 +13,7 @@ import amazonscraper
 import urllib
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfparser import PDFDocument
+import microsoft_knowledge_api
 app = Flask(__name__)
 app.secret_key = os.environ['APP_SECRET']
 # db_url = os.environ['MYSQL_DATABASE_URL'].split('//')
@@ -302,20 +303,24 @@ def node_clicked():
             print ("The clicked node was " + str(clickedNode))
             print ('Successfully clicked the node')
             try:
-                scholardata = scholar_user.get_query_html(str(clickedNode))
+                # scholardata = scholar_user.get_query_html(str(clickedNode))
+                paperdata = microsoft_knowledge_api.get_paper_data(str(clickedNode))
             except:
-                scholardata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Couldn't get data from Google Scholar.</div>'''
+                paperdata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Couldn't get data from Microsoft API.</div>'''
+                # scholardata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Couldn't get data from Google Scholar.</div>'''
             amazon_div_string = '''<div style="margin-top: 20vh;text-align: center;">Click concepts for amazon recommendations.</div>'''
             if (clickedNode+'.pdf' in os.listdir(session['CURRENT_USER_FOLDER'])):
-                return json.dumps({'data1': str(scholardata), 'data2': amazon_div_string})
+                return json.dumps({'data1': str(paperdata), 'data2': amazon_div_string})
+                # return json.dumps({'data1': str(scholardata), 'data2': amazon_div_string})
             else:
                 try:
                     amazondata = amazonscraper.get_products(str(clickedNode))
                 except:
                     amazondata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Amazon's acting weird again.</div>'''
-                return json.dumps({'data1': str(scholardata), 'data2': str(amazondata)})
+                return json.dumps({'data1': str(paperdata), 'data2': str(amazondata)})
+                # return json.dumps({'data1': str(scholardata), 'data2': str(amazondata)})
 
 if __name__ == '__main__':
-    # app.run()
-    print ('Port that should set is', os.environ.get('PORT'))
-    serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)
+    app.run()
+    # print ('Port that should set is', os.environ.get('PORT'))
+    # serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)
