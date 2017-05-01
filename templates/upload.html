@@ -38,7 +38,7 @@
        </div>
      </nav>
 
-      <div class="container" style="padding-top: 8%;">
+      <div class="container" style="padding-top: 8%;" id="contents">
         <h1 style="color: white;">Hello, start by uploading a research paper that you want to look into for prerequisites.</h1>
          <form class="bs-example bs-example-form" method='post' enctype=multipart/form-data role="form" id="uploadForm">
             <div class="form-group">
@@ -63,6 +63,9 @@
         <p id="invalidFile" style="color:white;">Invalid file uploaded. Please upload a different file.</p>
         <p id="invalidTitle" style="color:white;">Invalid title, please enter the title again.</p>
       </div>
+      <div style="margin-left: 42%; margin-top: 7%;" id="ajaxGif">
+        <img src="/static/img/ajax_loader_blue_256.gif" alt="Loader Gif">
+      </div>
    </body>
    <script>
       $(document).ready(function() {
@@ -71,6 +74,8 @@
           $("#invalidFile").hide();
           $("#invalidTitle").hide();
           $("#noConcepts").hide();
+          $("#ajaxGif").fadeTo("fast", 0.85);
+          $("#ajaxGif").hide();
           $(document).on('click', '.browse', function() {
               var file = $(this).parent().parent().parent().find('.file');
               file.trigger('click');
@@ -82,6 +87,9 @@
 
           $("#uploadForm").submit(function(event) {
               event.preventDefault();
+              $("#contents").fadeTo("fast", 0.5);
+              $("#ajaxGif").css("margin-top: 0%");
+              $("#ajaxGif").show();
               var formData = new FormData($("#uploadForm")[0]);
               $.ajax({
                   type: "POST",
@@ -97,7 +105,9 @@
                       window.location.href = "{{ url_for('show_home') }}";
                   },
                   error: function(result) {
-                      debugger;
+                      // debugger;
+                      $("#contents").fadeTo("fast", 1);
+                      $("#ajaxGif").hide();
                       console.log("Data is" + JSON.parse(result.responseText))
                       if (JSON.parse(result.responseText)['error'] === 'No concepts') {
                           console.log("No concepts found!");
@@ -117,6 +127,9 @@
 
           $("#titleForm").submit(function(event) {
               event.preventDefault();
+              $("#contents").fadeTo("fast", 0.5);
+              $("#ajaxGif").css("margin-top: -9%");
+              $("#ajaxGif").show();
               $.ajax({
                 url: "{{ url_for('show_upload') }}",
                 data: JSON.stringify($("#titleForm").serialize()),
@@ -128,6 +141,8 @@
                     window.location.href = "{{ url_for('show_home') }}";
                 },
                 error: function(result) {
+                    $("#contents").fadeTo("fast", 1);
+                    $("#ajaxGif").hide();
                     $("#invalidTitle").show().fadeOut(4000);
                     console.log(result.responseText);
                 }

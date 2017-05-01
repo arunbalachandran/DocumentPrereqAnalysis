@@ -230,11 +230,7 @@ def show_pdf():
     if session.get('CURRENT_USER'):
         if request.method == 'GET':
             show_path = get_path_from_title(session['SHOW_PDF'])
-            # filename = os.path.basename(show_path)
             return send_file(show_path)
-            # return render_template('viewpdf.html')
-            # with open(show_path, 'rb') as static_file:
-            #     return send_file(show_path)
         if request.method == 'POST':
             data = request.get_json()
             print ('data received is', data)

@@ -1,18 +1,11 @@
 from amazon.api import AmazonAPI
 import os
 
-# config = {
-#     'access_key': os.environ.get('AMAZON_ACCESS'),
-#     'secret_key': os.environ.get('AMAZON_SECRET'),
-#     'associate_tag': os.environ.get('AMAZON_ASSOCIATE'),
-#     'locale': os.environ.get('AMAZON_LOCALE')
-# }
-
 config = {
-'access_key': 'AKIAIULMIRDIHWTSXJTQ',
-'secret_key': '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',
-'associate_tag': 'dcpa-20',
-'locale': 'us'
+    'access_key': os.environ.get('AMAZON_ACCESS'),
+    'secret_key': os.environ.get('AMAZON_SECRET'),
+    'associate_tag': os.environ.get('AMAZON_ASSOCIATE'),
+    'locale': os.environ.get('AMAZON_LOCALE')
 }
 
 def get_products(keyword):
