@@ -78,14 +78,14 @@ def get_paper_rating():
         paper_rating = cdata[0][2]
     return paper_rating
 
-def check_file_exists():
+def insert_if_not_file(central_node, abstract):
     conn = mysql.connection
     cursor = conn.cursor()
     query = 'SELECT user_id, paper_title FROM pdf_user_trace WHERE user_id=%s AND paper_title=%s'
     cursor.execute(query, (session['CURRENT_USER_ID'], session['CURRENT_PAPER_TITLE'], ))
     if cursor.rowcount == 0:
         query_insert = 'INSERT INTO pdf_user_trace (user_id, paper_abstract, paper_path, paper_title, paper_prerequisite) VALUES (%s, %s, %s, %s, %s)'
-        cursor.execute(query_insert, (session['CURRENT_USER_ID'], session['CURRENT_PAPER_ABSTRACT'], str(session['CURRENT_PAPER_PATH']), session['CURRENT_PAPER_TITLE'], json.dumps(session['CURRENT_PAPER_NODES']),))
+        cursor.execute(query_insert, (session['CURRENT_USER_ID'], abstract, str(session['CURRENT_PAPER_PATH']), session['CURRENT_PAPER_TITLE'], json.dumps(central_node),))
         conn.commit()
 
 def populate_library():
@@ -104,6 +104,13 @@ def get_path_from_title(temp_title):
     data = cursor.fetchall()[0][0]
     return data
 
+def get_nodes():
+    conn = mysql.connection
+    cursor = conn.cursor()
+    query = 'SELECT paper_prerequisite FROM pdf_user_trace WHERE user_id=%s AND paper_title=%s'
+    cursor.execute(query, (session['CURRENT_USER_ID'], session['CURRENT_PAPER_TITLE']),)
+    data = cursor.fetchall()[0][0]
+    return data
 
 def get_abstract_nodes_from_title():
     conn = mysql.connection
@@ -167,6 +174,17 @@ def show_upload():
             title = urllib.parse.parse_qs(title)['titleText'][0]
             print ('title is', title)
             session['CURRENT_PAPER_TITLE'] = title
+            session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
+            nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+            print ('Current detected nodes', nodes)
+            print ('Current paper abstract is', abstract)
+            # session['CURRENT_PAPER_ABSTRACT'] = abstract
+            if len(nodes) == 0:
+                return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
+                # add a central node
+            add_central_node = {}
+            add_central_node[filename[:-4]] = nodes
+            insert_if_not_file(add_central_node, abstract)
             return json.dumps({'success': 'Paper title received'}), 200, {'contentType': 'application/json'}
             # urllib.urlparse.parse_qs
 
@@ -184,17 +202,6 @@ def title_check():
             else:
                 filename = secure_filename(f.filename)
                 f.save(os.path.join(session['CURRENT_USER_FOLDER'], filename))
-                session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
-                nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
-                print ('Current detected nodes', nodes)
-                print ('Current paper abstract is', abstract)
-                session['CURRENT_PAPER_ABSTRACT'] = abstract
-                if len(nodes) == 0:
-                    return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
-                    # add a central node
-                add_central_node = {}
-                add_central_node[filename[:-4]] = nodes
-                session['CURRENT_PAPER_NODES'] = add_central_node
                 fp = open(os.path.join(session['CURRENT_USER_FOLDER'], filename), 'rb')
                 parser = PDFParser(fp)
                 doc = PDFDocument(parser)
@@ -204,19 +211,32 @@ def title_check():
                     if doc.info[0].get('Title'):
                         title = doc.info[0]['Title']
                         session['CURRENT_PAPER_TITLE'] = title
+                        session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
+                        nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+                        print ('Current detected nodes', nodes)
+                        print ('Current paper abstract is', abstract)
+                        # session['CURRENT_PAPER_ABSTRACT'] = abstract
+                        if len(nodes) == 0:
+                            return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
+                            # add a central node
+                        add_central_node = {}
+                        add_central_node[filename[:-4]] = nodes
+                        insert_if_not_file(add_central_node, abstract)
+                        # session['CURRENT_PAPER_NODES'] = add_central_node
+                        return json.dumps({'success': 'Successful check for title existence'}), 200, {'ContentType': 'application/json'}
                     else:
                         return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
                 else:
                     return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
-                return json.dumps({'success': 'Successful check for title existence'}), 200, {'ContentType': 'application/json'}
 
 @app.route('/userHome', methods=['GET', 'POST'])
 def show_home():
     if session.get('CURRENT_USER'):
         if request.method == 'GET':
             current_paper_rating = get_paper_rating()
-            check_file_exists()
-            return render_template('graph_page.html', nodes=session['CURRENT_PAPER_NODES'], googlecx=app.config['GOOGLE_KEY'], paper_rating=current_paper_rating)
+            current_nodes = get_nodes()
+            # insert_if_not_file()
+            return render_template('graph_page.html', nodes=current_nodes, googlecx=app.config['GOOGLE_KEY'], paper_rating=current_paper_rating)
 
 @app.route('/userLibrary', methods=['GET'])
 def show_library():
