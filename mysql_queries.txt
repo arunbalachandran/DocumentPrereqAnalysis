@@ -2,5 +2,5 @@
 create database HCI;
 # Create tables queries.
 create table user_tab(user_id int AUTO_INCREMENT primary key, user_name varchar(255), password varchar(255));
-create table pdf_user_trace(user_id int, paper_path varchar(255), paper_abstract text(2000), paper_title varchar(255), paper_prerequisite text(1000));
+create table pdf_user_trace(paper_user_id int AUTO_INCREMENT primary key, user_id int, paper_path varchar(255), paper_abstract text(2000), paper_title varchar(255), paper_prerequisite text(1000));
 create table paper_rating(paper_id int AUTO_INCREMENT primary key, paper_title varchar(255), rating float, paper_user_rated_count int, paper_rating_sum int);

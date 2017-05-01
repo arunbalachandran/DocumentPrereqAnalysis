@@ -1,4 +1,4 @@
-# from waitress import serve
+from waitress import serve
 from flask import Flask, request, redirect, url_for, render_template, flash, session, send_file
 from werkzeug.utils import secure_filename
 from werkzeug import generate_password_hash, check_password_hash
@@ -15,8 +15,8 @@ from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfparser import PDFDocument
 app = Flask(__name__)
 app.secret_key = os.environ['APP_SECRET']
-db_url = os.environ['MYSQL_DATABASE_URL'].split('//')
-# db_url = os.environ['CLEARDB_DATABASE_URL'].split('//')
+# db_url = os.environ['MYSQL_DATABASE_URL'].split('//')
+db_url = os.environ['CLEARDB_DATABASE_URL'].split('//')
 app.config['GOOGLE_KEY'] = os.environ.get('GOOGLE_KEY')
 app.config['MYSQL_USER'] = db_url[1].split(':')[0]
 app.config['MYSQL_PASSWORD'] = db_url[1].split(':')[1].split('@')[0]
@@ -91,7 +91,7 @@ def check_file_exists():
 def populate_library():
     conn = mysql.connection
     cursor = conn.cursor()
-    query = 'SELECT user_id, paper_abstract, paper_path, paper_title, paper_prerequisite FROM pdf_user_trace WHERE user_id=%s'
+    query = 'SELECT user_id, paper_abstract, paper_path, paper_title, paper_prerequisite FROM pdf_user_trace WHERE user_id=%s ORDER BY paper_user_id DESC'
     cursor.execute(query, (session['CURRENT_USER_ID'],))
     data = cursor.fetchall()
     return data
@@ -283,6 +283,6 @@ def node_clicked():
             #     return json.dumps({'error': True}), 200, {'ContentType': 'application/json'}
 
 if __name__ == '__main__':
-    app.run()
-    # print ('Port that should set is', os.environ.get('PORT'))
-    # serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)
+    # app.run()
+    print ('Port that should set is', os.environ.get('PORT'))
+    serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)
