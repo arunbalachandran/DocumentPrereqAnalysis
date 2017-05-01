@@ -5,7 +5,7 @@ from werkzeug import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mysqldb import MySQL
 import os, json, subprocess, shlex, sys
-import prereq_fetcher
+import prereq_fetcher_stemming
 import sys
 import scholar_user
 import os
@@ -63,6 +63,7 @@ def insert_paper_rating(data):
         # insert new record here.
         query_insert_first_rate = 'INSERT INTO paper_rating (paper_title, rating, paper_user_rated_count, paper_rating_sum) values (%s, %s, %s, %s)'
         cursor.execute(query_insert_first_rate, (session['CURRENT_PAPER_TITLE'], data['value'], 1, data['value'], ))
+        paper_rating = data['value']
         conn.commit()
     return paper_rating
 
@@ -184,7 +185,7 @@ def title_check():
                 filename = secure_filename(f.filename)
                 f.save(os.path.join(session['CURRENT_USER_FOLDER'], filename))
                 session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
-                nodes, abstract = prereq_fetcher.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+                nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
                 print ('Current detected nodes', nodes)
                 print ('Current paper abstract is', abstract)
                 session['CURRENT_PAPER_ABSTRACT'] = abstract
@@ -274,13 +275,14 @@ def node_clicked():
             data = request.get_json('data')
             clickedNode = data["clickdata"]
             print ("The clicked node was " + str(clickedNode))
-            # check if clicked node is not central node
-            # if (clickedNode not in os.listdir(app.config['UPLOAD_FOLDER'])):
-            scholardata = scholar_user.get_query_html(str(clickedNode))
-            # amazondata = amazonscraper.get_products(str(clickedNode))
             print ('Successfully clicked the node')
-            # return json.dumps({"data1": str(scholardata), "data2": str(amazondata)})
-            return json.dumps({"data1": str(scholardata), "data2": 'Test Data'})
+            scholardata = scholar_user.get_query_html(str(clickedNode))
+            amazon_div_string = '''<div style="margin-top: 20vh;text-align: center;">Click concepts for amazon recommendations.</div>'''
+            if (clickedNode+'.pdf' in os.listdir(session['CURRENT_USER_FOLDER'])):
+                return json.dumps({'data1': str(scholardata), 'data2': amazon_div_string})
+            else:
+                amazondata = amazonscraper.get_products(str(clickedNode))
+                return json.dumps({'data1': str(scholardata), 'data2': str(amazondata)})
             # else:
             #     return json.dumps({'error': True}), 200, {'ContentType': 'application/json'}
 

@@ -31,11 +31,11 @@
                <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%" style="background-color: dimgray">
                   <thead>
                      <tr>
-                        <th># No</th>
-                        <th>Title</th>
+                        <th style="width: 5%;"># No</th>
+                        <th style="width: 16.5%;">Title</th>
                         <th>Abstract</th>
                         <th>View Paper</th>
-                        <th>View in DCPA mode</th>
+                        <th>View Concepts</th>
                      </tr>
                   </thead>
                   <tfoot>
@@ -44,20 +44,20 @@
                         <th>Title</th>
                         <th>Abstract</th>
                         <th>View Paper</th>
-                        <th>View in DCPA mode</th>
+                        <th>View Concepts</th>
                      </tr>
                   </tfoot>
                   <tbody>
                      {% for j, i in dataset %}
-                     <tr>
-                        <td>{{j + 1}}</td>
-                        <td>{{i[3]}}</td>
-                        <td>{{i[1]}}</td>
-                        <!-- <td><a href=>View Paper</a></td> -->
-                        <td><form class="viewForm"><input type="submit" value="View Paper" class="btn btn-primary" paperTitle="{{ i[3] }}" id="{{ 'paper' + j|string }}" ></form></td>
-                        <td><form class="viewPrereqForm"><input type="submit" value="View Prerequisite" class="btn btn-primary" paperTitle="{{ i[3] }}" id="{{ 'paper' + j|string }}" ></form></td>
-                        <!-- <td><a href >View Prerequisite</a></td> -->
-                     </tr>
+                       <tr>
+                          <td>{{j + 1}}</td>
+                          <td>{{i[3]}}</td>
+                          <td>{{i[1]}}</td>
+                          <!-- <td><a href=>View Paper</a></td> -->
+                          <td><form class="viewForm"><input type="submit" value="View Paper" class="btn btn-primary" paperTitle="{{ i[3] }}" id="{{ 'paper' + j|string }}" ></form></td>
+                          <td><form class="viewPrereqForm"><input type="submit" value="View Prerequisite" class="btn btn-primary" paperTitle="{{ i[3] }}" id="{{ 'paper' + j|string }}" ></form></td>
+                          <!-- <td><a href >View Prerequisite</a></td> -->
+                       </tr>
                      {% endfor %}
                   </tbody>
                </table>
