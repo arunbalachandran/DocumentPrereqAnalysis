@@ -5,7 +5,8 @@ from werkzeug import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mysqldb import MySQL
 import os, json, subprocess, shlex, sys
-import prereq_fetcher_stemming
+# import prereq_fetcher_stemming
+import prereq_fetcher
 import sys
 import scholar_user
 import os
@@ -177,7 +178,8 @@ def show_upload():
             session['CURRENT_PAPER_TITLE'] = title
             filename = session['CURRENT_FILENAME']
             session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
-            nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+            nodes, abstract = prereq_fetcher.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+            # nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
             print ('Current detected nodes', nodes)
             print ('Current paper abstract is', abstract)
             # session['CURRENT_PAPER_ABSTRACT'] = abstract
@@ -221,7 +223,8 @@ def title_check():
                         title = doc.info[0]['Title']
                         session['CURRENT_PAPER_TITLE'] = title
                         session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
-                        nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+                        nodes, abstract = prereq_fetcher.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+                        # nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
                         print ('Current detected nodes', nodes)
                         print ('Current paper abstract is', abstract)
                         # session['CURRENT_PAPER_ABSTRACT'] = abstract

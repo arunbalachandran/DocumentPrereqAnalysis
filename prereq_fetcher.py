@@ -24,19 +24,22 @@ def get_concepts(filepath):
         cmd = 'gs -q -dNODISPLAY -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -c save -f ps2ascii.ps ' + filename + ' -c quit'
         proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)  # don't need the posix option if the filesystem is not windows
     pdftext, stderr = proc.communicate()
-    pdftext = str(pdftext).lower()
-    abstract_text, abstract_index = '', ''
+    # pdftext = str(pdftext).lower()
+    pdftext = str(pdftext).lower().replace(r'\n', '\n')
+    abstract_text, abstract_index = 'No abstract found.', ''
+    # abstract_text, abstract_index = '', ''
     sentences = pdftext.split('\n')
     for index, sentence in enumerate(sentences):
-        if 'Abstract' in sentence:
+        if 'abstract' in sentence.split():
             abstract_index = index
     temp_list = []
     if abstract_index:
         for sentence in sentences[abstract_index+1:]:
             temp_list.append(sentence)
-            if 'Introduction' in sentence:
+            if '1. introduction' in sentence:
                 break
         abstract_text = ' '.join(temp_list[:-1])
+        abstract_text = abstract_text.strip().title()
     print ('command is', cmd)
     os.chdir(original_path)
     print ('changed back to', os.getcwd())
@@ -54,4 +57,6 @@ def get_concepts(filepath):
             if (len(results) > 0):
                 print ('for query', q, results)
                 concept_dict[q] = prereq_dict[q]
+    if len(abstract_text) > 1500:
+        abstract_text = abstract_text[:1500] + ' ...'
     return (concept_dict, abstract_text)
