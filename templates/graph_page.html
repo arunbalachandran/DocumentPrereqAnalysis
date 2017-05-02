@@ -46,7 +46,10 @@
               }, 1000)
               // $(".gsc-cursor").hide();
               console.log("A node was clicked");
-              // $("#amazonLoaderGif").fadeIn("fast");
+              $("#amazonLoaderGif").fadeIn("fast");
+              $("#googleDiv").fadeTo("fast", 0.5);
+              $("#scholardiv").fadeTo("fast", 0.7);
+              $("#amazonDiv").fadeTo("fast", 0.7);
               $.ajax({
                 type : "POST",
                 url : "{{url_for('node_clicked')}}",
@@ -56,13 +59,19 @@
                     console.log("Success case!");
                     var parsedData = JSON.parse(data);
                     console.log("No problems here");
-                    // $("#amazonLoaderGif").fadeOut("fast");
+                    $("#scholardiv").fadeTo("fast", 1);
+                    $("#amazonDiv").fadeTo("fast", 1);
+                    $("#googleDiv").fadeTo("fast", 1);
                     $("#scholardiv").html(parsedData['data1']);
                     $("#amazonDiv").html(parsedData['data2']);
+                    $("#amazonLoaderGif").fadeOut("fast");
                 },
                 error: function (data) {
                     console.log("failure case!");
-                    // $("#amazonLoaderGif").fadeOut("fast");
+                    $("#scholardiv").fadeTo("fast", 1);
+                    $("#amazonDiv").fadeTo("fast", 1);
+                    $("#googleDiv").fadeTo("fast", 1);
+                    $("#amazonLoaderGif").fadeOut("fast");
                 }
               });
           }
@@ -107,9 +116,10 @@
       }
 
       #amazonLoaderGif {
-        display:none;
-        position:absolute;
-        /*background:#fff; */
+        display: none;
+        top: 50%;
+        left: 75%;
+        position: absolute;
       }
 
       #imgLoad {
@@ -280,9 +290,9 @@
       <!-- <div class="row"> -->
         <div class="col-md-4 gwd-div-sqmu gwd-gen-9lgjgwdanimation" id="scholardiv" style="display: none; padding-left: 2.25%; width: 33vw; height: 100vh;"></div>
         <div class="col-md-4 gwd-div-14zh" id="amazonDiv" style="display: none; padding-left: 2.5%; width: 33vw; height: 100vh;"></div>
-        <!-- <div id="amazonLoaderGif">
+        <div id="amazonLoaderGif">
           <img src="/static/img/ajax_loader_blue_256.gif" alt="Loader Gif" id="imgLoad">
-        </div> -->
+        </div>
       <!-- </div> -->
     </div>
   </body>
@@ -291,7 +301,7 @@
       $(document).ready(function() {
           $('.gwd-div-zptc').css('height','100vh');
           console.log('This is google div ===========<><><><> ', $('.gwd-div-zptc'));
-          $t = $("#amazonDiv"); // CHANGE it to the table's id you have
+          // $t = $("#amazonDiv"); // CHANGE it to the table's id you have
           // $("#amazonLoaderGif").css({
           //   opacity : 0.5,
           //   top     : $t.offset().top * 0.7,
