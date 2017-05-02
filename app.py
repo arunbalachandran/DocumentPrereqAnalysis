@@ -129,7 +129,10 @@ def get_abstract_nodes_from_title():
 @app.route('/', methods=['GET'])
 def show_index():
     if request.method == 'GET':
-        return render_template('index.html')
+        if session.get('CURRENT_USER'):
+            return redirect(url_for('show_upload'))
+        else:
+            return render_template('index.html')
 
 @app.route('/registration', methods=['GET', 'POST'])
 def show_registration():
@@ -258,6 +261,8 @@ def title_check():
                                     return json.dumps({'success': 'Successful check for title existence'}), 200, {'contentType': 'application/json'}
                             else:
                                 return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
+                        else:
+                            return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
                     else:
                         return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
                     # except:

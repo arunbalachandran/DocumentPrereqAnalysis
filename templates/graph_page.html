@@ -282,7 +282,7 @@
             <li id="scholarDivTab"><a href="#" id="scholarDivClick">Research Papers</a></li>
           </ul>
         </div>
-        <div class="col-md-4 gwd-div-zptc" style="width: 33vw; height: 100vh" id="googleDiv">  <!-- need to make this height variable -->
+        <div class="col-md-4 gwd-div-zptc" style="height: 93%" id="googleDiv">  <!-- need to make this height variable -->
           <script>
             (function() {
               var cx = '{{ googlecx }}';
@@ -299,8 +299,8 @@
         </div>
       <!-- </div> -->
       <!-- <div class="row"> -->
-        <div class="col-md-4 gwd-div-sqmu gwd-gen-9lgjgwdanimation" id="scholardiv" style="display: none; padding-left: 2.25%; width: 33vw; height: 100vh;"></div>
-        <div class="col-md-4 gwd-div-14zh" id="amazonDiv" style="display: none; padding-left: 2.5%; width: 33vw; height: 100vh;"></div>
+        <div class="col-md-4 gwd-div-sqmu gwd-gen-9lgjgwdanimation" id="scholardiv" style="display: none; padding-left: 2.25%; height: 93%;"></div>
+        <div class="col-md-4 gwd-div-14zh" id="amazonDiv" style="display: none; padding-left: 2.5%; height: 93%;"></div>
         <div id="amazonLoaderGif">
           <img src="/static/img/ajax_loader_blue_256.gif" alt="Loader Gif" id="imgLoad">
         </div>
@@ -310,7 +310,8 @@
 
   <script>
       $(document).ready(function() {
-          $('.gwd-div-zptc').css('height','100vh');
+          // $('.gwd-div-zptc').css('height','100vh');
+          $('.gwd-div-zptc').css('height','93%');
           console.log('This is google div ===========<><><><> ', $('.gwd-div-zptc'));
           // $t = $("#amazonDiv"); // CHANGE it to the table's id you have
           // $("#amazonLoaderGif").css({

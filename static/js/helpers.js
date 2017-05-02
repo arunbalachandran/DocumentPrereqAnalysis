@@ -36,7 +36,18 @@ function lightenHex(hex,percent) {
 }
 // Get the color for a node, lighten a blue based on level. Subtle.
 function getColor(level) {
-  return lightenHex("#03A9F4",5*level); // Gets 5% lighter for each level
+    if (level === 0) {
+      return lightenHex("#03A9F4",5*level); // Gets 5% lighter for each level
+    }
+    else if (level == 1) {
+      return lightenHex("#f06473", 5*level);
+    }
+    else if (level == 2) {
+      return lightenHex("#92dc73", 5*level);
+    }
+    else {
+      return lightenHex("#8f775d", 5*level);
+    }
 }
 // Get the highlighted color for a node, lighten a yellow based on level. Subtle.
 function getYellowColor(level) {
