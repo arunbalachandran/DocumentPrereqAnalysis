@@ -113,14 +113,14 @@
 
       .firstTimeRating {
         margin-top: 1%;
-        margin-left: 15%;
+        margin-left: 6%;
         font-weight: bold;
         color: darkgrey;
       }
 
       #ratingForPaperUL {
         margin-top: 1%;
-        margin-left: 15%;
+        margin-left: 7%;
         /*width: 150%;*/
         font-weight: bold;
         color: darkgrey;
@@ -144,7 +144,7 @@
       }
 
       .overlay-bg {
-          display: none;
+          /*display: none;*/
           position: absolute;
           top: 0;
           left: 0;
@@ -182,26 +182,26 @@
               border-radius: 4px;
               box-shadow: 0 0 4px rgba(0,0,0,0.3);
           }
-          .close-btn:hover {
+          /*.close-btn:hover {
               background: #05abe0;
-          }
+          }*/
 
       /* media query for most mobile devices */
-      @media only screen and (min-width: 0px) and (max-width: 480px){
+      /*@media only screen and (min-width: 0px) and (max-width: 480px){
 
           .overlay-content {
               width: 96%;
               margin: 0 2%;
               left: 0;
           }
-      }
+      }*/
     </style>
   </head>
   <!-- <body class="htmlNoPages"> -->
   <body>
     <nav class="navbar navbar-default">
       <div class="navbar-header">
-        <a href="#" class="navbar-brand">Document Prerequisite Classifier</a>
+        <a href="{{ url_for('show_upload') }}" class="navbar-brand">Document Prerequisite Classifier</a>
       </div>
       <div class="navbar-collapse collapse" id="navbar">
         <ul class="nav navbar-nav" style="float: right;">
@@ -240,20 +240,21 @@
         {% endif %}
       </div>
 
-      <div class="overlay-bg">
-          <div class="overlay-content" style="width: 16.87%; height: 17%; margin-left: 12%; top: 5.9%">
-            <form >
-              <input required class="rb-rating" type="text" value="" title="">
-              <button id="ratingButton" type="submit" class="rating_btn btn btn-primary">Submit</button>
-              <button class="close-btn btn btn-primary">Close</button>
+      <!-- <div class="overlay-bg"> -->
+          <div style="position: absolute; margin-left: 51%; z-index: 1000; top: 9%;">
+            <form>
+              <input required class="rb-rating" type="text" value="" title="" id="ratingStar">
+              <!-- <button id="ratingButton" type="submit" class="rating_btn btn btn-primary">Submit</button> -->
             </form>
-            <p id="ratingSaved" style="color: grey;display: block;width: 113%;margin-top: 4%;">Rating Saved! Close tab to continue!</p>
+            <p id="ratingSaved" style="margin-top: 5%; margin-left: 25%">Rating Saved!</p>
+            <p id="ratingHelp" style="width: 52%; margin-top: 5%; margin-left: 12%; color: brown;">Click the stars to rate the paper by difficulty!</p>
           </div>
-      </div>
+      <!-- </div> -->
     </nav>
 
     <div class="container-fluid">
       <div class="row" style="height: 100vh;">  <!-- Need to make the height for the nodes container (namecontainer) variable ! -->
+        <p id="getStartedElement" style="position: absolute;z-index: 1000;margin-left: 20%;margin-top: 3%;font-size: 23px;font-weight: bolder;">Click the blue node to get started!</p>
         <div class="col-md-8" id="namecontainer" style="height:100vh">
           <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis-network.min.js"> </script>
           <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"> </script>
@@ -312,6 +313,8 @@
       $(document).ready(function() {
           // $('.gwd-div-zptc').css('height','100vh');
           $('.gwd-div-zptc').css('height','93%');
+          // for the stars
+          $(".caption").attr('css', 'padding-top: 1%');
           console.log('This is google div ===========<><><><> ', $('.gwd-div-zptc'));
           // $t = $("#amazonDiv"); // CHANGE it to the table's id you have
           // $("#amazonLoaderGif").css({
@@ -381,7 +384,9 @@
           $('.glyphicon-minus-sign').css('display','none');
           $('.label-default').html('Assign Rating');
 
-          $('#ratingButton').click(function(event) {
+          $('.rating-stars').click(function(event) {
+              $("#ratingHelp").hide();
+              console.log('Came here on click');
               event.preventDefault();
               var difficulty_level = $('.label').text();
               var json_data = '';
@@ -407,12 +412,12 @@
                       console.log('rating ', rating);
                       // debugger;
                       $(".firstTimeRating").hide();
-                      if (rating > 0 && rating <=1) {
+                      if (rating > 0 && rating <=1.5) {
                         $("#ratingForPaperUL").html("This paper has been rated as easy");
                         $("#ratingForPaperUL").css({'color' : "darkseagreen"});
                         $("#ratingForPaperUL").show();
                           // $('.filled-stars').width(33.3333);
-                      } else if (rating > 1 && rating <= 2) {
+                      } else if (rating > 1.5 && rating <= 2.5) {
                         $("#ratingForPaperUL").html("This paper has been rated as intermediate");
                         $("#ratingForPaperUL").css({'color' : "yellowgreen"});
                         $("#ratingForPaperUL").show();
@@ -431,27 +436,27 @@
               });
           });
 
-          $('.show-popup').click(function(event) {
-               event.preventDefault(); // disable normal link function so that it doesn't refresh the page
-               var docHeight = $(document).height(); //grab the height of the page
-               var scrollTop = $(window).scrollTop(); //grab the px value from the top of the page to where you're scrolling
-               $('.overlay-bg').show().css({'height' : docHeight}); //display your popup and set height to the page height
-              //  $('.overlay-content').css({'top': scrollTop+20+'px'}); //set the content 20px from the window top
-           });
+          // $('.show-popup').click(function(event) {
+          //      event.preventDefault(); // disable normal link function so that it doesn't refresh the page
+          //      var docHeight = $(document).height(); //grab the height of the page
+          //      var scrollTop = $(window).scrollTop(); //grab the px value from the top of the page to where you're scrolling
+          //      $('.overlay-bg').show().css({'height' : docHeight}); //display your popup and set height to the page height
+          //     //  $('.overlay-content').css({'top': scrollTop+20+'px'}); //set the content 20px from the window top
+          //  });
 
            // hide popup when user clicks on close button
-           $('.close-btn').click(function() {
-               $('.overlay-bg').hide(); // hide the overlay
-           });
+          //  $('.close-btn').click(function() {
+          //      $('.overlay-bg').hide(); // hide the overlay
+          //  });
 
            // hides the popup if user clicks anywhere outside the container
-           $('.overlay-bg').click(function() {
-               $('.overlay-bg').hide();
-           })
+          //  $('.overlay-bg').click(function() {
+          //      $('.overlay-bg').hide();
+          //  })
            // prevents the overlay from closing if user clicks inside the popup overlay
-           $('.overlay-content').click(function() {
-               return false;
-           });
+          //  $('.overlay-content').click(function() {
+          //      return false;
+          //  });
 
 
           //  setTimeout(function() {

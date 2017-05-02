@@ -43,6 +43,8 @@ def get_concepts(filepath):
     print ('command is', cmd)
     os.chdir(original_path)
     print ('changed back to', os.getcwd())
+    if len(abstract_text) > 1500:
+        abstract_text = abstract_text[:1500] + ' ...'
     schema = Schema(title=TEXT(stored=True), path=ID(stored=True), content=TEXT)
     ix = create_in("indexdir", schema)
     writer = ix.writer()
@@ -55,8 +57,18 @@ def get_concepts(filepath):
             query = QueryParser("content", ix.schema).parse(q)
             results = searcher.search(query)
             if (len(results) > 0):
-                print ('for query', q, results)
                 concept_dict[q] = prereq_dict[q]
-    if len(abstract_text) > 1500:
-        abstract_text = abstract_text[:1500] + ' ...'
+                print ('for query', q, results)
+    deletion_list = []
+    for i in concept_dict:
+        temp_dict = {}
+        for j in concept_dict:
+            if j != i:
+                temp_dict[j] = concept_dict[j]
+        # if "'" + i + "'" in str(temp_dict):
+        if i in str(temp_dict):  # may remove other nodes
+            deletion_list.append(i)
+    if deletion_list:
+        for j in deletion_list:
+            del concept_dict[j]
     return (concept_dict, abstract_text)

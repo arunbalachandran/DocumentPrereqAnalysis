@@ -21,6 +21,7 @@ function expandNodeCallback(page) {
     var subpages = node['node_parent_marker'];   // list of child nodes
     console.log("THe current level for node that was clicked " + node.level);
     console.log("THe current node that was clicked ", node.label);
+    $("#getStartedElement").fadeOut("slow");    // hide the help
     document.getElementById("namecontainer").setAttribute("name", node.label);
     LoadGoogle();
     console.log("Subpages are ", subpages);

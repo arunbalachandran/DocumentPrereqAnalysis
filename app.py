@@ -1,4 +1,4 @@
-from waitress import serve
+# from waitress import serve
 from flask import Flask, request, redirect, url_for, render_template, flash, session, send_file
 from werkzeug.utils import secure_filename
 from werkzeug import generate_password_hash, check_password_hash
@@ -202,6 +202,8 @@ def show_upload():
                 insert_if_not_file(add_central_node, abstract)
                 return json.dumps({'success': 'Paper title received'}), 200, {'contentType': 'application/json'}
                 # urllib.urlparse.parse_qs
+    else:
+        return redirect(url_for('show_index'))
 
 @app.route('/titleCheck', methods=['POST'])
 def title_check():
@@ -265,6 +267,8 @@ def title_check():
                             return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
                     else:
                         return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
+    else:
+        return redirect(url_for('show_index'))
                     # except:
                     #     print ('Couldnt set parser')
                     #     return json.dumps({'error': 'Invalid file'}), 400, {'ContentType': 'application/json'}
@@ -279,6 +283,8 @@ def show_home():
             current_nodes = json.loads(current_nodes[0][0])
             # insert_if_not_file()
             return render_template('graph_page.html', nodes=current_nodes, googlecx=app.config['GOOGLE_KEY'], paper_rating=current_paper_rating)
+    else:
+        return redirect(url_for('show_index'))
 
 @app.route('/userLibrary', methods=['GET'])
 def show_library():
@@ -286,6 +292,8 @@ def show_library():
         if request.method == 'GET':
             data = populate_library()
             return render_template('userlibrary.html', dataset=enumerate(data))
+    else:
+        return redirect(url_for('show_index'))
 
 @app.route('/viewPdf', methods=['GET', 'POST'])
 def show_pdf():
@@ -299,6 +307,8 @@ def show_pdf():
             print ('data received is', data)
             session['SHOW_PDF'] = data
             return json.dumps({'success': 'Got file data'}), 200, {'contentType': 'application/json'}
+    else:
+        return redirect(url_for('show_index'))
             # return render_template('viewpdf.html', data=data)
 
 @app.route('/viewPrereq', methods=['POST'])
@@ -311,6 +321,8 @@ def show_prereq():
             # session['CURRENT_PAPER_ABSTRACT'], prereqs = get_abstract_nodes_from_title()
             # session['CURRENT_PAPER_NODES'] = json.loads(prereqs)
             return json.dumps({'success': 'Successfully retrieved paper data'}), 200, {'contentType': 'application/json'}
+    else:
+        return redirect(url_for('show_index'))
 
 @app.route('/paperRating', methods=['POST'])
 def paper_rating():
@@ -320,6 +332,8 @@ def paper_rating():
             print ('data is', data)
             result_rating = insert_paper_rating(data)
             return json.dumps({'success': result_rating}), 200, {'ContentType': 'application/json'}
+    else:
+        return redirect(url_for('show_index'))
 
 @app.route('/logout', methods=['GET'])
 def show_logout():
@@ -332,29 +346,36 @@ def node_clicked():
     if session.get('CURRENT_USER'):
         if request.method == 'POST':
             data = request.get_json('data')
-            clickedNode = data["clickdata"]
-            print ("The clicked node was " + str(clickedNode))
-            print ('Successfully clicked the node')
-            # try:
-                # scholardata = scholar_user.get_query_html(str(clickedNode))
-            paperdata = microsoft_knowledge_api.get_paper_data(str(clickedNode))
-            if 'Error in fetching' in paperdata:
-                paperdata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Couldn't get data from Microsoft API.</div>'''
-            # except:
-                # scholardata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Couldn't get data from Google Scholar.</div>'''
-            amazon_div_string = '''<div style="margin-top: 20vh;text-align: center;">Click concepts for amazon recommendations.</div>'''
-            if (clickedNode+'.pdf' in os.listdir(session['CURRENT_USER_FOLDER'])):
+            if not data or data == 'None':
+                paperdata = '''<div style="margin-top: 20vh;text-align: center;">Click the nodes to get data from Microsoft API.</div>'''
+                amazon_div_string = '''<div style="margin-top: 20vh;text-align: center;">Click concepts for amazon recommendations.</div>'''
                 return json.dumps({'data1': str(paperdata), 'data2': amazon_div_string})
-                # return json.dumps({'data1': str(scholardata), 'data2': amazon_div_string})
             else:
-                try:
-                    amazondata = amazonscraper.get_products(str(clickedNode))
-                except:
-                    amazondata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Amazon's acting weird again.</div>'''
-                return json.dumps({'data1': str(paperdata), 'data2': str(amazondata)})
+                clickedNode = data["clickdata"]
+                print ("The clicked node was " + str(clickedNode))
+                print ('Successfully clicked the node')
+                # try:
+                    # scholardata = scholar_user.get_query_html(str(clickedNode))
+                paperdata = microsoft_knowledge_api.get_paper_data(str(clickedNode))
+                if 'Error in fetching' in paperdata:
+                    paperdata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Couldn't get data from Microsoft API.</div>'''
+                # except:
+                    # scholardata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Couldn't get data from Google Scholar.</div>'''
+                amazon_div_string = '''<div style="margin-top: 20vh;text-align: center;">Click concepts for amazon recommendations.</div>'''
+                if (str(clickedNode)+'.pdf' in os.listdir(session['CURRENT_USER_FOLDER'])):
+                    return json.dumps({'data1': str(paperdata), 'data2': amazon_div_string})
+                    # return json.dumps({'data1': str(scholardata), 'data2': amazon_div_string})
+                else:
+                    try:
+                        amazondata = amazonscraper.get_products(str(clickedNode))
+                    except:
+                        amazondata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Amazon's acting weird again.</div>'''
+                    return json.dumps({'data1': str(paperdata), 'data2': str(amazondata)})
+    else:
+        return redirect(url_for('show_index'))
                 # return json.dumps({'data1': str(scholardata), 'data2': str(amazondata)})
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    print ('Port that should set is', os.environ.get('PORT'))
-    serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)
+    app.run(debug=True)
+    # print ('Port that should set is', os.environ.get('PORT'))
+    # serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)
