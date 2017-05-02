@@ -6,7 +6,7 @@ from whoosh.index import create_in
 from whoosh.fields import *
 from whoosh.qparser import QueryParser
 
-with open('prereq_dict.json') as fp:
+with open('prereq_dict_super.json') as fp:
     prereq_dict = json.load(fp)
 system_encoding = sys.stdout.encoding
 
