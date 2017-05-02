@@ -9,7 +9,7 @@ var container = document.getElementById('namecontainer');
 //Global options
 var options = {
     autoResize: true,
-    height: '100%',
+    height: '100%', // change to 100%
     width: '100%',
     nodes: {
         shape: 'dot',

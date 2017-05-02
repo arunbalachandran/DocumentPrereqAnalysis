@@ -46,7 +46,7 @@
               }, 1000)
               // $(".gsc-cursor").hide();
               console.log("A node was clicked");
-              $("#amazonLoaderGif").fadeIn("fast");
+              // $("#amazonLoaderGif").fadeIn("fast");
               $.ajax({
                 type : "POST",
                 url : "{{url_for('node_clicked')}}",
@@ -56,13 +56,13 @@
                     console.log("Success case!");
                     var parsedData = JSON.parse(data);
                     console.log("No problems here");
-                    $("#amazonLoaderGif").fadeOut("fast");
+                    // $("#amazonLoaderGif").fadeOut("fast");
                     $("#scholardiv").html(parsedData['data1']);
                     $("#amazonDiv").html(parsedData['data2']);
                 },
                 error: function (data) {
                     console.log("failure case!");
-                    $("#amazonLoaderGif").fadeOut("fast");
+                    // $("#amazonLoaderGif").fadeOut("fast");
                 }
               });
           }
@@ -190,7 +190,7 @@
           <li><a href="{{ url_for('show_upload') }}">Upload Another Paper</a></li>
         </ul>
         <ul class="nav navbar-nav" style="float: right;">
-          <li><a href="{{ url_for('show_library') }}">Show library</a></li>
+          <li><a href="{{ url_for('show_library') }}">View Library</a></li>
         </ul>
         <ul class="nav navbar-nav" style="float: right;">
           <li>
@@ -201,19 +201,19 @@
           <li></li>
         </ul>
         {% if paper_rating|float() == 0 %}
-          <ul class="nav navbar-nav firstTimeRating">
+          <ul class="nav navbar-nav firstTimeRating" style="color: darkgrey;">
             <li>This paper hasn't been rated before.</li>
           </ul>
         {% elif paper_rating|float() <= 1.5 %}
-          <ul class="nav navbar-nav firstTimeRating">
+          <ul class="nav navbar-nav firstTimeRating" style="color: darkseagreen;">
             <li>This paper has been rated as Easy.</li>
           </ul>
         {% elif paper_rating|float() <= 2.5 %}
-          <ul class="nav navbar-nav firstTimeRating">
+          <ul class="nav navbar-nav firstTimeRating" style="color: yellowgreen;">
             <li>This paper has been rated with Intermediate Level.</li>
           </ul>
         {% else %}
-          <ul class="nav navbar-nav firstTimeRating">
+          <ul class="nav navbar-nav firstTimeRating" style="color: indianred;">
             <li>This paper has been rated as Hard.</li>
           </ul>
         {% endif %}
@@ -232,8 +232,8 @@
     </nav>
 
     <div class="container-fluid">
-      <div class="row">  <!-- Need to make the height for the nodes container (namecontainer) variable ! -->
-        <div class="col-md-9" id="namecontainer">
+      <div class="row" style="height: 100vh;">  <!-- Need to make the height for the nodes container (namecontainer) variable ! -->
+        <div class="col-md-8" id="namecontainer" style="height:100vh">
           <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis-network.min.js"> </script>
           <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"> </script>
           <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.3/js/tether.min.js"> </script>
@@ -253,8 +253,15 @@
                 bind();
             };
           </script>
+        </div>  <!-- hopefully the canvas inherits the parent div code -->
+        <div class="col-md-4">
+          <ul class="nav nav-tabs">
+            <li id="googleDivTab" class="active"><a href="#" id="googleDivClick">Google Search</a></li>
+            <li id="amazonDivTab"><a href="#" id="amazonDivClick">Books on Amazon</a></li>
+            <li id="scholarDivTab"><a href="#" id="scholarDivClick">Research Papers</a></li>
+          </ul>
         </div>
-        <div class="col-md-3 gwd-div-zptc">  <!-- need to make this height variable -->
+        <div class="col-md-4 gwd-div-zptc" style="width: 33vw; height: 100vh" id="googleDiv">  <!-- need to make this height variable -->
           <script>
             (function() {
               var cx = '{{ googlecx }}';
@@ -271,31 +278,32 @@
         </div>
       <!-- </div> -->
       <!-- <div class="row"> -->
-        <div class="col-md-6 gwd-div-sqmu gwd-gen-9lgjgwdanimation" id="scholardiv"></div>
-        <div class="col-md-6 gwd-div-14zh" id="amazonDiv"></div>
-        <div id="amazonLoaderGif">
+        <div class="col-md-4 gwd-div-sqmu gwd-gen-9lgjgwdanimation" id="scholardiv" style="display: none; padding-left: 2.25%; width: 33vw; height: 100vh;"></div>
+        <div class="col-md-4 gwd-div-14zh" id="amazonDiv" style="display: none; padding-left: 2.5%; width: 33vw; height: 100vh;"></div>
+        <!-- <div id="amazonLoaderGif">
           <img src="/static/img/ajax_loader_blue_256.gif" alt="Loader Gif" id="imgLoad">
-        </div>
+        </div> -->
       <!-- </div> -->
     </div>
   </body>
 
   <script>
       $(document).ready(function() {
+          $('.gwd-div-zptc').css('height','100vh');
+          console.log('This is google div ===========<><><><> ', $('.gwd-div-zptc'));
           $t = $("#amazonDiv"); // CHANGE it to the table's id you have
+          // $("#amazonLoaderGif").css({
+          //   opacity : 0.5,
+          //   top     : $t.offset().top * 0.7,
+          //   width   : $t.outerWidth(),
+          //   height  : $t.outerHeight(),
+          //   left    : $t.position().left * 0.87 // the fix.
+          // });
 
-          $("#amazonLoaderGif").css({
-            opacity : 0.5,
-            top     : $t.offset().top * 0.7,
-            width   : $t.outerWidth(),
-            height  : $t.outerHeight(),
-            left    : $t.position().left * 0.87 // the fix.
-          });
-
-          $("#imgLoad").css({
-            top  : ($t.height() / 2),
-            left : ($t.width() / 2)
-          });
+          // $("#imgLoad").css({
+          //   top  : ($t.height() / 2),
+          //   left : ($t.width() / 2)
+          // });
           //Make the change here to get the clicked node. AJAX call would be the same.
           console.log("The document is ready!");
           // $('.gsc-search-box').hide();
@@ -308,6 +316,37 @@
           // $(document).ajaxStart(function() {
               // $('.loadingGif').show();
           // })
+
+          $('#amazonDivClick').click(function() {
+            $("#amazonDiv").show();
+            $('#amazonDivTab').attr('class','active');
+            // hide the others
+            $("#googleDiv").hide();
+            $("#scholardiv").hide();
+            $('#googleDivTab').attr('class','');
+            $('#scholarDivTab').attr('class','');
+          });
+
+          $('#scholarDivClick').click(function() {
+            $("#scholardiv").show();
+            $('#scholarDivTab').attr('class','active');
+            // hide the others
+            $("#googleDiv").hide();
+            $("#amazonDiv").hide();
+            $('#googleDivTab').attr('class','');
+            $('#amazonDivTab').attr('class','');
+          });
+
+          $('#googleDivClick').click(function() {
+            $("#googleDiv").show();
+            $('#googleDivTab').attr('class','active');
+            // hide the others
+            $("#scholardiv").hide();
+            $("#amazonDiv").hide();
+            $('#amazonDivTab').attr('class','');
+            $('#scholarDivTab').attr('class','');
+          });
+
           $('.rb-rating').rating({
               'showCaption': true,
               'stars': '3',
@@ -318,7 +357,8 @@
               'starCaptions': {0: 'Assign Rating', 1: 'Easy', 2: 'Intermediate', 3: 'Hard'}
           });
           $('.glyphicon-minus-sign').css('display','none');
-          $('.label-default').html('Assign Rating')
+          $('.label-default').html('Assign Rating');
+
           $('#ratingButton').click(function(event) {
               event.preventDefault();
               var difficulty_level = $('.label').text();
@@ -346,15 +386,18 @@
                       // debugger;
                       $(".firstTimeRating").hide();
                       if (rating > 0 && rating <=1) {
-                        $("#ratingForPaperUL").html("This paper has been rated easy");
+                        $("#ratingForPaperUL").html("This paper has been rated as easy");
+                        $("#ratingForPaperUL").css({'color' : "darkseagreen"});
                         $("#ratingForPaperUL").show();
                           // $('.filled-stars').width(33.3333);
                       } else if (rating > 1 && rating <= 2) {
-                        $("#ratingForPaperUL").html("This paper has been rated intermediate");
+                        $("#ratingForPaperUL").html("This paper has been rated as intermediate");
+                        $("#ratingForPaperUL").css({'color' : "yellowgreen"});
                         $("#ratingForPaperUL").show();
                           // $('.filled-stars').width(66.6667);
                       } else {
-                        $("#ratingForPaperUL").html("This paper has been rated hard.");
+                        $("#ratingForPaperUL").html("This paper has been rated as hard.");
+                        $("#ratingForPaperUL").css({'color' : "indianred"});
                         $("#ratingForPaperUL").show();
                           // $('.filled-stars').width(100);
                       }
@@ -387,6 +430,11 @@
            $('.overlay-content').click(function() {
                return false;
            });
+
+
+          //  setTimeout(function() {
+          //       $('.vis-network').css('height','100vh');
+          //   }, 500);
       });
   </script>
 </html>

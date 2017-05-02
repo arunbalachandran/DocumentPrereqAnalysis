@@ -8,7 +8,7 @@ import os, json, subprocess, shlex, sys
 # import prereq_fetcher_stemming
 import prereq_fetcher
 import sys
-import scholar_user
+# import scholar_user
 import os
 import amazonscraper
 import urllib
@@ -178,19 +178,24 @@ def show_upload():
             session['CURRENT_PAPER_TITLE'] = title
             filename = session['CURRENT_FILENAME']
             session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
-            nodes, abstract = prereq_fetcher.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
-            # nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
-            print ('Current detected nodes', nodes)
-            print ('Current paper abstract is', abstract)
-            # session['CURRENT_PAPER_ABSTRACT'] = abstract
-            if len(nodes) == 0:
-                return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
-                # add a central node
-            add_central_node = {}
-            add_central_node[filename[:-4]] = nodes
-            insert_if_not_file(add_central_node, abstract)
-            return json.dumps({'success': 'Paper title received'}), 200, {'contentType': 'application/json'}
-            # urllib.urlparse.parse_qs
+            try:
+                current_nodes = json.loads(get_nodes())
+                print ('Nodes already exist')
+                return json.dumps({'success': 'Paper title received'}), 200, {'contentType': 'application/json'}
+            except:
+                nodes, abstract = prereq_fetcher.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+                # nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+                print ('Current detected nodes', nodes)
+                print ('Current paper abstract is', abstract)
+                # session['CURRENT_PAPER_ABSTRACT'] = abstract
+                if len(nodes) == 0:
+                    return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
+                    # add a central node
+                add_central_node = {}
+                add_central_node[filename[:-4]] = nodes
+                insert_if_not_file(add_central_node, abstract)
+                return json.dumps({'success': 'Paper title received'}), 200, {'contentType': 'application/json'}
+                # urllib.urlparse.parse_qs
 
 @app.route('/titleCheck', methods=['POST'])
 def title_check():
@@ -223,19 +228,24 @@ def title_check():
                         title = doc.info[0]['Title']
                         session['CURRENT_PAPER_TITLE'] = title
                         session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
-                        nodes, abstract = prereq_fetcher.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
-                        # nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
-                        print ('Current detected nodes', nodes)
-                        print ('Current paper abstract is', abstract)
-                        # session['CURRENT_PAPER_ABSTRACT'] = abstract
-                        if len(nodes) == 0:
-                            return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
-                            # add a central node
-                        add_central_node = {}
-                        add_central_node[filename[:-4]] = nodes
-                        insert_if_not_file(add_central_node, abstract)
-                        # session['CURRENT_PAPER_NODES'] = add_central_node
-                        return json.dumps({'success': 'Successful check for title existence'}), 200, {'ContentType': 'application/json'}
+                        try:    # check if you can get the nodes for the paper
+                            current_nodes = json.loads(get_nodes())
+                            print ('Nodes already exist')
+                            return json.dumps({'success': 'Paper title received'}), 200, {'contentType': 'application/json'}
+                        except:
+                            nodes, abstract = prereq_fetcher.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+                            # nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+                            print ('Current detected nodes', nodes)
+                            print ('Current paper abstract is', abstract)
+                            # session['CURRENT_PAPER_ABSTRACT'] = abstract
+                            if len(nodes) == 0:
+                                return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
+                                # add a central node
+                            add_central_node = {}
+                            add_central_node[filename[:-4]] = nodes
+                            insert_if_not_file(add_central_node, abstract)
+                            # session['CURRENT_PAPER_NODES'] = add_central_node
+                            return json.dumps({'success': 'Successful check for title existence'}), 200, {'ContentType': 'application/json'}
                     else:
                         return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
                 else:
@@ -305,11 +315,12 @@ def node_clicked():
             clickedNode = data["clickdata"]
             print ("The clicked node was " + str(clickedNode))
             print ('Successfully clicked the node')
-            try:
+            # try:
                 # scholardata = scholar_user.get_query_html(str(clickedNode))
-                paperdata = microsoft_knowledge_api.get_paper_data(str(clickedNode))
-            except:
+            paperdata = microsoft_knowledge_api.get_paper_data(str(clickedNode))
+            if 'Error in fetching' in paperdata:
                 paperdata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Couldn't get data from Microsoft API.</div>'''
+            # except:
                 # scholardata = '''<div style="margin-top: 20vh;text-align: center;">Oops! Couldn't get data from Google Scholar.</div>'''
             amazon_div_string = '''<div style="margin-top: 20vh;text-align: center;">Click concepts for amazon recommendations.</div>'''
             if (clickedNode+'.pdf' in os.listdir(session['CURRENT_USER_FOLDER'])):

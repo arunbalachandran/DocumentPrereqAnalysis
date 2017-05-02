@@ -43,20 +43,30 @@ def get_paper_data(topic_name):
         print('evaluated query is', data)  # data that needs to be interpreted
         conn.close()
         # now generate div elements
-        div_str = '<div>'
+        div_str = "<div class='first-div' style='padding-top:2%'>"
+        print ('data entities exists? ', data.get('entities', 'false'))
         for i in data['entities']:
-            div_str += '<div>'
-            div_str += '<p>' + i['Ti'].title() + '</p>'
-            div_str += '<p>Citation count -> ' + str(i['CC']) + '</p>'
-            div_str += '<p>Published in year ->' + str(i['Y']) + '</p>'
-            div_str += '<p>Authors are -> '
-            for j in i['AA']:
-                div_str += j['AuN'] + ', '
-            div_str = div_str[:-2] + '</p>'
-            div_str += '</div>'
-        div_str += '</div>'
+            print ('Current entity is', i)
+            div_str += "<div class='inner-div' style='padding-top:4%'>"
+            print ('currently here 1', div_str)
+            div_str += "<p class='title'><b>" + i['Ti'].title() + "</b></p>"
+            print ('currently here 2', div_str)
+            div_str += "<p class='authors' >Authors are "
+            print ('currently here 3', div_str)
+            print ('author is', i['AA'])
+            div_str += i['AA'][0]['AuN'].title()
+            print ('currently here 4', div_str)
+            if len(i['AA']) != 1:
+                div_str += ' et al.,'
+            div_str += "</p>"
+            print ('currently here 5', div_str)
+            div_str += "<p class='citation' style='display: inline-block;'>Cited by " + str(i['CC']) + " people </p>"
+            div_str += "<p class='pub-year' style='display: inline; float: right;'>Published in year " + str(i['Y']) + "</p>"
+            div_str += "</div>"
+        div_str += "</div>"
+        print ('Html being returned is', div_str)
         return div_str
     except Exception as e:
         error_string = 'Error in fetching MCS data'
-        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        # print("[Errno {0}] {1}".format(e.errno, e.strerror))
         return error_string
