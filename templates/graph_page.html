@@ -65,6 +65,17 @@
                     $("#scholardiv").html(parsedData['data1']);
                     $("#amazonDiv").html(parsedData['data2']);
                     $("#amazonLoaderGif").fadeOut("fast");
+
+                    // to re highlight tab
+                    if ($('#googleDivTab').attr('class') == "active") {
+                        $("#googleDivClick").click();
+                    }
+                    else if ($('#amazonDivTab').attr('class') == "active") {
+                        $("#amazonDivClick").click();
+                    }
+                    else {
+                        $("#scholarDivClick").click();
+                    }
                 },
                 error: function (data) {
                     console.log("failure case!");
@@ -230,7 +241,7 @@
       </div>
 
       <div class="overlay-bg">
-          <div class="overlay-content" style="width: 16.87%; height: 15%; margin-left: 25%; top: 6.9%">
+          <div class="overlay-content" style="width: 16.87%; height: 17%; margin-left: 12%; top: 5.9%">
             <form >
               <input required class="rb-rating" type="text" value="" title="">
               <button id="ratingButton" type="submit" class="rating_btn btn btn-primary">Submit</button>

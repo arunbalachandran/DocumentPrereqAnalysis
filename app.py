@@ -15,6 +15,7 @@ import urllib
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfparser import PDFDocument
 import microsoft_knowledge_api
+from flask import jsonify
 app = Flask(__name__)
 app.secret_key = os.environ['APP_SECRET']
 # db_url = os.environ['MYSQL_DATABASE_URL'].split('//')
@@ -87,6 +88,7 @@ def insert_if_not_file(central_node, abstract):
     cursor.execute(query, (session['CURRENT_USER_ID'], session['CURRENT_PAPER_TITLE'], ))
     if cursor.rowcount == 0:
         query_insert = 'INSERT INTO pdf_user_trace (user_id, paper_abstract, paper_path, paper_title, paper_prerequisite) VALUES (%s, %s, %s, %s, %s)'
+        print ('inserting prereq into table')
         cursor.execute(query_insert, (session['CURRENT_USER_ID'], abstract, str(session['CURRENT_PAPER_PATH']), session['CURRENT_PAPER_TITLE'], json.dumps(central_node),))
         conn.commit()
 
@@ -111,7 +113,8 @@ def get_nodes():
     cursor = conn.cursor()
     query = 'SELECT paper_prerequisite FROM pdf_user_trace WHERE user_id=%s AND paper_title=%s'
     cursor.execute(query, (session['CURRENT_USER_ID'], session['CURRENT_PAPER_TITLE']),)
-    data = cursor.fetchall()[0][0]
+    data = cursor.fetchall()
+    print ('data is', data)
     return data
 
 def get_abstract_nodes_from_title():
@@ -174,15 +177,15 @@ def show_upload():
         elif request.method == 'POST':
             title = request.get_json()
             title = urllib.parse.parse_qs(title)['titleText'][0]
-            print ('title is', title)
+            # print ('title is', title)
             session['CURRENT_PAPER_TITLE'] = title
             filename = session['CURRENT_FILENAME']
             session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
-            try:
-                current_nodes = json.loads(get_nodes())
+            current_nodes = get_nodes()
+            if current_nodes:
                 print ('Nodes already exist')
                 return json.dumps({'success': 'Paper title received'}), 200, {'contentType': 'application/json'}
-            except:
+            else:
                 nodes, abstract = prereq_fetcher.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
                 # nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
                 print ('Current detected nodes', nodes)
@@ -203,7 +206,7 @@ def title_check():
         if request.method == 'POST':
             if 'file' not in request.files:
                 flash('No file part.')
-                return redirect(request.url)
+                return redirect(url_for('show_upload'))
             f = request.files['file']
             print ('is allowed file name', allowed_file(f.filename))
             if f.filename == '' or not allowed_file(f.filename):
@@ -213,50 +216,62 @@ def title_check():
                 print ('current filename is', filename)
                 session['CURRENT_FILENAME'] = filename
                 f.save(os.path.join(session['CURRENT_USER_FOLDER'], filename))
-                fp = open(os.path.join(session['CURRENT_USER_FOLDER'], filename), 'rb')
-                parser = PDFParser(fp)
-                doc = PDFDocument(parser)
-                parser.set_document(doc)
-                try:
+                with open(os.path.join(session['CURRENT_USER_FOLDER'], filename), 'rb') as fp:
+                    parser = PDFParser(fp)
+                    doc = PDFDocument(parser)
+                    parser.set_document(doc)
+                    # try:
                     print ('Trying to set parser')
-                    doc.set_parser(parser)
-                except:
-                    print ('Couldnt set parser')
-                    return json.dumps({'error': 'Invalid file'}), 400, {'ContentType': 'application/json'}
-                if len(doc.info) > 0:
-                    if doc.info[0].get('Title'):
-                        title = doc.info[0]['Title']
-                        session['CURRENT_PAPER_TITLE'] = title
-                        session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
-                        try:    # check if you can get the nodes for the paper
-                            current_nodes = json.loads(get_nodes())
-                            print ('Nodes already exist')
-                            return json.dumps({'success': 'Paper title received'}), 200, {'contentType': 'application/json'}
-                        except:
-                            nodes, abstract = prereq_fetcher.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
-                            # nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
-                            print ('Current detected nodes', nodes)
-                            print ('Current paper abstract is', abstract)
-                            # session['CURRENT_PAPER_ABSTRACT'] = abstract
-                            if len(nodes) == 0:
-                                return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
-                                # add a central node
-                            add_central_node = {}
-                            add_central_node[filename[:-4]] = nodes
-                            insert_if_not_file(add_central_node, abstract)
-                            # session['CURRENT_PAPER_NODES'] = add_central_node
-                            return json.dumps({'success': 'Successful check for title existence'}), 200, {'ContentType': 'application/json'}
+                    try:
+                        doc.set_parser(parser)
+                    except:
+                        print ('Probably invalid pdf')
+                        return json.dumps({'error': 'Invalid file'}), 400, {'ContentType': 'application/json'}
+                    if len(doc.info) > 0:
+                        print ('Checked if doc has info')
+                        if doc.info[0].get('Title', ''):
+                            print ('Check if doc has a title')
+                            if type(doc.info[0].get('Title')) == str:
+                                title = doc.info[0]['Title']
+                                # print ('title is', title)
+                                # input()
+                                session['CURRENT_PAPER_TITLE'] = title
+                                session['CURRENT_PAPER_PATH'] = os.path.join(session['CURRENT_USER_FOLDER'], filename)
+                                current_nodes = get_nodes()
+                                if current_nodes:    # check if you can get the nodes for the paper
+                                    print ('Nodes already exist')
+                                    return json.dumps({'success': 'Paper title received'}), 200, {'contentType': 'application/json'}
+                                else:
+                                    nodes, abstract = prereq_fetcher.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+                                    # nodes, abstract = prereq_fetcher_stemming.get_concepts(os.path.join(session['CURRENT_USER_FOLDER'], filename))
+                                    print ('Current detected nodes', nodes)
+                                    print ('Current paper abstract is', abstract)
+                                    # session['CURRENT_PAPER_ABSTRACT'] = abstract
+                                    if len(nodes) == 0:
+                                        return json.dumps({'error': 'No concepts'}), 400, {'ContentType': 'application/json'}
+                                        # add a central node
+                                    add_central_node = {}
+                                    add_central_node[filename[:-4]] = nodes
+                                    insert_if_not_file(add_central_node, abstract)
+                                    print ('Done inserting node into table')
+                                    # return jsonify('Successful check!')
+                                    return json.dumps({'success': 'Successful check for title existence'}), 200, {'contentType': 'application/json'}
+                            else:
+                                return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
                     else:
                         return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
-                else:
-                    return json.dumps({'error': 'Title not found'}), 400, {'ContentType': 'application/json'}
+                    # except:
+                    #     print ('Couldnt set parser')
+                    #     return json.dumps({'error': 'Invalid file'}), 400, {'ContentType': 'application/json'}
 
 @app.route('/userHome', methods=['GET', 'POST'])
 def show_home():
     if session.get('CURRENT_USER'):
         if request.method == 'GET':
             current_paper_rating = get_paper_rating()
-            current_nodes = json.loads(get_nodes())
+            current_nodes = get_nodes()
+            print ('current nodes are', current_nodes)
+            current_nodes = json.loads(current_nodes[0][0])
             # insert_if_not_file()
             return render_template('graph_page.html', nodes=current_nodes, googlecx=app.config['GOOGLE_KEY'], paper_rating=current_paper_rating)
 
@@ -335,6 +350,6 @@ def node_clicked():
                 # return json.dumps({'data1': str(scholardata), 'data2': str(amazondata)})
 
 if __name__ == '__main__':
-    # app.run()
+    # app.run(debug=True)
     print ('Port that should set is', os.environ.get('PORT'))
     serve(app, port=os.environ.get('PORT', 8000), cleanup_interval=100)
