@@ -1,5 +1,5 @@
 from amazon.api import AmazonAPI
-import os
+import os  
 
 config = {
     'access_key': os.environ.get('AMAZON_ACCESS'),
